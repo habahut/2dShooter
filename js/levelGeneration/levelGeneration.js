@@ -45,6 +45,14 @@ function initArray(length) {
     return arr;
 }
 
+function initMap(width, height) {
+    var map = [];
+    for (var i = 0;i < height;i++) {
+        map.push(initArray(width));
+    }
+    return map;
+}
+
 // it would be cool if this was seeded to the edges maybe
 // or if there was some coefficient for how spread out the map should be
 // close quarters could be fun too
@@ -53,9 +61,10 @@ function seedMap(map, n) {
         y = 0,
         locs = [];
     while (locs.length < n) {
-        // assuming the map is always square for right now...
-        x = getRandom(0, map.length);
-        y = getRandom(0, map[0].length);
+        // cluster the points?
+        margin = 0;
+        x = getRandom(margin, map.length - margin);
+        y = getRandom(margin, map[0].length - margin);
         if (map[y][x] != 0) continue;
         map[y][x] = 1;
         locs.push({"x":x, "y": y});
@@ -175,7 +184,8 @@ function renderMap(roomMap, ctx) {
     }
 }
 
-function buildMap(mst, map) {
+function roomWalk(mst, w, h) {
+    var map = initMap(w, h);
     for (var i = 0;i < mst.length; i++) {
         var x1 = mst[i].origin.x,
             y1 = mst[i].origin.y;
@@ -195,7 +205,10 @@ function buildMap(mst, map) {
             map[y1][x1] = 1;
         }
     }
+    return map;
 }
+
+function expandRooms() {}
 
 $(document).ready(function() {
     var jCanvas = $("#mainCanvas");
@@ -213,26 +226,21 @@ $(document).ready(function() {
     ctx.fill();
 
 
-
     var height = 10,
         width = 10,
-        roomMap = [];
+        numSeeds = 10;
+        map1 = initMap(width, height);
 
-    for (var i = 0;i < height;i++) {
-        roomMap.push(initArray(width));
-    }
-
-    var locs = seedMap(roomMap, 10);
+    var locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs);
-    mstToString(mst, locs);
 
+    //mstToString(mst, locs);
     //renderGraph(mst, locs, ctx);
+    //console.log('mst', mst);
+    //console.log('locs', locs);
 
-    console.log('mst', mst);
-    console.log('locs', locs);
-
-    buildMap(mst, roomMap);
-    renderMap(roomMap, ctx);
-    console.log('roomMap', mapToString(roomMap));
+    var map2 = roomWalk(mst, width, height);
+    renderMap(map2, ctx);
+    console.log('roomMap', mapToString(map2));
 });

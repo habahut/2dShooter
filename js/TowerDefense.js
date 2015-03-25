@@ -93,6 +93,9 @@ function main() {
     
     for (var i = entities.length -1; i >= 0; i--) {
         if (entities[i].update(dt)) entities.splice(i, 1);
+        // this should have the indirection of calling Sprite.render(camera)
+        // because not all objects will be just the 'image'. There may be other pieces.
+        // would be good to have the flexibility of letting the sprite tell the camera how to render itself
         else camera.render(entities[i]);
     }
 
