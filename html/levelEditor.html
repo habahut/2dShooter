@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>SUP</title>
+    </head>
+    <!-- "width": 1000, "height": 700 -->
+    <script type="text/javascript">
+        ///// THIS IS ESSENTIAL TO PRESERVE THE CONSOLE LOG!!!
+        // should only put this in the top level HTML file for each page,
+        // since each on will trigger, we will get repeats
+        //  Include this once in the top level html for the app
+        if (typeof process !== 'undefined') {
+            process.on('uncaughtException', function(e) {
+                    console.log(e.stack);
+            });
+        }
+    </script>
+    <link rel="stylesheet" type="text/css" href="../css/tetris.css">
+    <script type="text/javascript" src="../bower_components/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="../js/util/resources.js"></script>
+    <script type="text/javascript" src="../js/util/sprite.js"></script>
+    <script type="text/javascript" src="../js/player.js"></script>
+    <script type="text/javascript" src="../js/util/input.js"></script>
+    <script type="text/javascript" src="../js/util/camera.js"></script>
+    <script type="text/javascript" src="../js/util/util.js"></script>
+    <script type="text/javascript" src="../js/TowerDefense.js"></script>
+    <body style="background-color: #FF0000;">
+        <div style="float: left">
+            <canvas id="mainCanvas" style="z-index:1;" ></canvas>
+            <!--<canvas id="guiCanvas" style="z-index:2;"></canvas>-->
+        </div>
+    </body>
+</html>

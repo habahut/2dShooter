@@ -1,0 +1,9 @@
+{
+    "name": "newgame",
+    "main": "html/mainMenu.html",
+    "window": {
+        "toolbar": true,
+        "width": 1000,
+        "height": 650
+    }
+}
