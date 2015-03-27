@@ -1,0 +1,4 @@
+(function() {
+    function Room(coordsList) {
+
+

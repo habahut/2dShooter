@@ -2,10 +2,6 @@ CanvasWidth = 560;
 CanvasHeight = 560;
 BlockSize = CanvasHeight / 10;
 
-function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
-
 function mapToString(map) {
     var str = '';
     for (var i = 0;i < map.length;i++) {
@@ -63,8 +59,8 @@ function seedMap(map, n) {
     while (locs.length < n) {
         // cluster the points?
         margin = 0;
-        x = getRandom(margin, map.length - margin);
-        y = getRandom(margin, map[0].length - margin);
+        x = getRandom(margin, map.length -1 - margin);
+        y = getRandom(margin, map[0].length  - 1- margin);
         if (map[y][x] != 0) continue;
         map[y][x] = 1;
         locs.push({"x":x, "y": y});
@@ -95,13 +91,13 @@ function primmsMethod(locs) {
     for (var i = 1;i < locs.length;i++)  nodesUsed.push(false);
 
     while (nodes.length < locs.length) {
-        console.log('------------- PASS: ', nodes.length, ' <= ', locs.length);
-        console.log(nodesUsed);
+        //console.log('------------- PASS: ', nodes.length, ' <= ', locs.length);
+        //console.log(nodesUsed);
         // search all nodes currently in MST for smallest edge
         var nextEdge = {"length": 999999};
         for (var i = 0; i < nodes.length;i++) {
-            console.log();
-            console.log('looking at node: ', nodes[i]);
+            //console.log();
+            //console.log('looking at node: ', nodes[i]);
 
             var thisNode = nodes[i];
             for (var j = 0; j < thisNode.edges.length; j++) {
@@ -117,11 +113,11 @@ function primmsMethod(locs) {
                     break;
                 }
             }
-            console.log('this shorted node found was: ', nextEdge);
+            //console.log('this shorted node found was: ', nextEdge);
         }
-        console.log('---- pass completed');
-        console.log('the shortest node found was : ', nextEdge);
-        console.log('from : ' , locs, ' to', nextEdge.dest);
+        //console.log('---- pass completed');
+        //console.log('the shortest node found was : ', nextEdge);
+        //console.log('from : ' , locs, ' to', nextEdge.dest);
         edges.push(nextEdge);
         nextEdge.used = true;
         // set the reverse of this edge to used as well
@@ -136,7 +132,6 @@ function primmsMethod(locs) {
         nodes.push(locs[nextEdge.dest]);
         nextEdge.destination = locs[nextEdge.dest];
         nextEdge.origin = locs[nextEdge.start];
-
     }
     return edges;
 }
@@ -170,21 +165,47 @@ function renderGraph(mst, locs, ctx) {
 }
 
 function renderMap(roomMap, ctx) {
-    ctx.fillStyle = 'red';
-    ctx.strokeStyle = 'blue';
     for (var i = 0; i < roomMap.length; i++) {
         for (var j = 0; j < roomMap[i].length; j++) {
+            if (roomMap[j][i] == 0) continue;
             if (roomMap[j][i] == 1) {
-                ctx.beginPath();
-                ctx.rect(i * BlockSize, j * BlockSize, BlockSize, BlockSize);
-                ctx.stroke();
-                ctx.fill();
+                ctx.fillStyle = 'red';
+                ctx.strokeStyle = 'blue';
+            } else {
+                ctx.fillStyle = "blue";
+                ctx.strokeStyle = "red";
             }
+            ctx.beginPath();
+            ctx.rect(i * BlockSize, j * BlockSize, BlockSize, BlockSize);
+            ctx.stroke();
+            ctx.fill();
         }
     }
 }
 
 function roomWalk(mst, w, h) {
+    // want to get 4 expansions per 10 edges in the graph
+    // assuming map is square
+    var numExpansions = 4 / 10 * mst.length,
+        expansions = [],
+        expandLocs = [],
+        count = 0;
+    while (expansions.length < numExpansions) {
+        expansions.push(getRandom(0, mst.length - 1));
+        expansions.sort(function(a, b) { return a - b });
+        makeUnique(expansions);
+    }
+
+    console.log('these are our options');
+    console.log(expansions[0]);
+    console.log(mst[expansions[0]]);
+    console.log(expansions[1]);
+    console.log(mst[expansions[1]]);
+    console.log(expansions[2]);
+    console.log(mst[expansions[2]]);
+    console.log(expansions[3]);
+    console.log(mst[expansions[3]]);
+
     var map = initMap(w, h);
     for (var i = 0;i < mst.length; i++) {
         var x1 = mst[i].origin.x,
@@ -194,6 +215,16 @@ function roomWalk(mst, w, h) {
         while (true) {
             var dx = x1 - x2,
                 dy = y1 - y2;
+            map[y1][x1] = 1;
+            if (expansions[count] == i) {
+                var lengthRemaining = Math.abs(x1 - x2 + y1 - y2);
+                if (getRandom(0, lengthRemaining) == 0) {
+                    expandLocs.push([x1, y1]);
+                    console.log('found a loc:', x1, y1);
+                    chanceExpand = false;
+                    count++;
+                }
+            }
             if (dx == 0 && dy == 0) break;
             if (Math.abs(dx) > Math.abs(dy)) {
                 if (dx > 0) x1 -= 1;
@@ -202,13 +233,68 @@ function roomWalk(mst, w, h) {
                 if (dy > 0) y1 -= 1;
                 else y1 += 1;
             }
-            map[y1][x1] = 1;
         }
     }
+
+    var expandedRooms = [];
+    for (var i = 0;i < expandLocs.length;i++) {
+        expandedRooms.push(mergeRooms(map, expandLocs[i][0], expandLocs[i][1]));
+        console.log('--------------');
+    }
+    console.log(expandedRooms);
+
     return map;
 }
 
-function expandRooms() {}
+function flattenRoomObj(rooms, obj) {
+    for (var i = 0;i < obj.length;i++) {
+        if (obj[i])
+            rooms.push(obj[i]);
+    }
+}
+
+function mergeRooms(map, x, y, depth) {
+    var prefix = "";
+    for (var l = 0;l < depth;l++) prefix += "  ";
+
+    console.log(prefix, 'merge rooms called!' , x , y );
+
+    var rooms = [];
+    if (!(0 <= x && x < map[0].length &&
+        0 <= y && y < map.length)) {
+           return [];
+    }
+    if (depth > 2) return [];
+    depth = depth || 1;
+    if (map[y][x] == 0) {
+        if (getRandomNR(0,1) < .6 / depth) {
+            console.log(prefix, 'converted ', x ,y );
+            map[y][x] = 2;
+            rooms.push({"x": x,"Y": y});
+        }
+    } else if (map[y][x] == 1) {
+        console.log(prefix, "setting: ", x, y);
+        rooms.push({"x": x,"y": y});
+        map[y][x] = 2;
+        if (getRandomNR(0,1) < .9 / depth) {
+            flattenRoomObj(mergeRooms(map, x - 1, y, depth + 1), rooms);
+            //rooms.push(mergeRooms(map, x - 1, y, depth + 1));
+        }
+        if (getRandomNR(0,1) < .9 / depth) {
+            flattenRoomObj(mergeRooms(map, x + 1, y, depth + 1), rooms);
+            //rooms.push(mergeRooms(map, x + 1, y, depth + 1));
+        }
+        if (getRandomNR(0,1) < .9 / depth) {
+            flattenRoomObj(mergeRooms(map, x, y - 1, depth + 1), rooms);
+            //rooms.push(mergeRooms(map, x, y - 1, depth + 1));
+        }
+        if (getRandomNR(0,1) < .9 / depth) {
+            flattenRoomObj(mergeRooms(map, x, y + 1, depth + 1), rooms);
+            //rooms.push(mergeRooms(map, x, y + 1, depth + 1));
+        }
+    }
+    return rooms;
+}
 
 $(document).ready(function() {
     var jCanvas = $("#mainCanvas");
@@ -224,7 +310,6 @@ $(document).ready(function() {
     ctx.rect(0,0, CanvasWidth, CanvasHeight);
     ctx.fillStyle = "white";
     ctx.fill();
-
 
     var height = 10,
         width = 10,
