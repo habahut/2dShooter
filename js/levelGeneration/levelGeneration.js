@@ -58,7 +58,7 @@ function seedMap(map, n) {
         locs = [];
     while (locs.length < n) {
         // cluster the points?
-        margin = 0;
+        margin = 1;
         x = getRandom(margin, map.length -1 - margin);
         y = getRandom(margin, map[0].length  - 1- margin);
         if (map[y][x] != 0) continue;
@@ -167,7 +167,7 @@ function renderGraph(mst, locs, ctx) {
 function renderMap(roomMap, ctx) {
     for (var i = 0; i < roomMap.length; i++) {
         for (var j = 0; j < roomMap[i].length; j++) {
-            if (roomMap[j][i] == 0) continue;
+            if (roomMap[j][i] == 0 || roomMap[j][i] == 2) continue;
             if (roomMap[j][i] == 1) {
                 ctx.fillStyle = 'red';
                 ctx.strokeStyle = 'blue';
@@ -183,10 +183,25 @@ function renderMap(roomMap, ctx) {
     }
 }
 
+function renderExpandedRooms(expandedRooms, ctx) {
+    var colors = ["black", "blue", "green", "orange", "yellow"];
+    for (var i = 0;i < expandedRooms.length;i++) {
+        var room = expandedRooms[i];
+        for (var j = 0;j < room.length; j++) {
+            ctx.beginPath();
+            ctx.fillStyle = colors[i];
+            ctx.strokeStyle = colors[i];
+            ctx.rect(room[j].x * BlockSize, room[j].y * BlockSize, BlockSize, BlockSize);
+            ctx.stroke();
+            ctx.fill();
+        }
+    }
+}
+
 function roomWalk(mst, w, h) {
     // want to get 4 expansions per 10 edges in the graph
     // assuming map is square
-    var numExpansions = 4 / 10 * mst.length,
+    var numExpansions = 5 / 10 * mst.length,
         expansions = [],
         expandLocs = [],
         count = 0;
@@ -238,34 +253,37 @@ function roomWalk(mst, w, h) {
 
     var expandedRooms = [];
     for (var i = 0;i < expandLocs.length;i++) {
-        expandedRooms.push(mergeRooms(map, expandLocs[i][0], expandLocs[i][1]));
+        var room = [];
+        mergeRooms(map, expandLocs[i][0], expandLocs[i][1], room);
+        expandedRooms.push(room);
+        console.log(expandedRooms[i]);
         console.log('--------------');
     }
     console.log(expandedRooms);
 
-    return map;
+    return {"map": map, "expandedRooms": expandedRooms};
 }
 
-function flattenRoomObj(rooms, obj) {
-    for (var i = 0;i < obj.length;i++) {
+function flattenRoomObj(arr) {
+    var newArr = [];
+    for (var i = 0;i < arr.length;i++) {
         if (obj[i])
             rooms.push(obj[i]);
     }
 }
 
-function mergeRooms(map, x, y, depth) {
+function mergeRooms(map, x, y, rooms, depth) {
     var prefix = "";
     for (var l = 0;l < depth;l++) prefix += "  ";
 
-    console.log(prefix, 'merge rooms called!' , x , y );
+    console.log(prefix, 'merge rooms called!' , x , y , rooms, rooms.push);
 
-    var rooms = [];
     if (!(0 <= x && x < map[0].length &&
         0 <= y && y < map.length)) {
-           return [];
+           return;
     }
-    if (depth > 2) return [];
     depth = depth || 1;
+    if (depth > 2) return;
     if (map[y][x] == 0) {
         if (getRandomNR(0,1) < .6 / depth) {
             console.log(prefix, 'converted ', x ,y );
@@ -276,24 +294,21 @@ function mergeRooms(map, x, y, depth) {
         console.log(prefix, "setting: ", x, y);
         rooms.push({"x": x,"y": y});
         map[y][x] = 2;
-        if (getRandomNR(0,1) < .9 / depth) {
-            flattenRoomObj(mergeRooms(map, x - 1, y, depth + 1), rooms);
-            //rooms.push(mergeRooms(map, x - 1, y, depth + 1));
+        /// depth squared?
+        if (getRandomNR(0,1) < 1 / depth) {
+            mergeRooms(map, x - 1, y, rooms, depth + 1);
         }
-        if (getRandomNR(0,1) < .9 / depth) {
-            flattenRoomObj(mergeRooms(map, x + 1, y, depth + 1), rooms);
-            //rooms.push(mergeRooms(map, x + 1, y, depth + 1));
+        if (getRandomNR(0,1) < 1 / depth) {
+            mergeRooms(map, x + 1, y, rooms, depth + 1);
         }
-        if (getRandomNR(0,1) < .9 / depth) {
-            flattenRoomObj(mergeRooms(map, x, y - 1, depth + 1), rooms);
-            //rooms.push(mergeRooms(map, x, y - 1, depth + 1));
+        if (getRandomNR(0,1) < 1 / depth) {
+            mergeRooms(map, x, y - 1, rooms, depth + 1);
+
         }
-        if (getRandomNR(0,1) < .9 / depth) {
-            flattenRoomObj(mergeRooms(map, x, y + 1, depth + 1), rooms);
-            //rooms.push(mergeRooms(map, x, y + 1, depth + 1));
+        if (getRandomNR(0,1) < 1 / depth) {
+            mergeRooms(map, x, y + 1, rooms, depth + 1);
         }
     }
-    return rooms;
 }
 
 $(document).ready(function() {
@@ -325,7 +340,22 @@ $(document).ready(function() {
     //console.log('mst', mst);
     //console.log('locs', locs);
 
-    var map2 = roomWalk(mst, width, height);
+    var tuple = roomWalk(mst, width, height),
+        map2 = tuple.map,
+        expandedRooms = tuple.expandedRooms;
     renderMap(map2, ctx);
+    renderExpandedRooms(expandedRooms, ctx);
     console.log('roomMap', mapToString(map2));
 });
+
+
+
+////// next steps
+//
+//  maybe try and chose rooms to expand that are far away from eachother? that way 
+//  there will be less frequent overlapping
+//
+//  create doors: this should be doable along the MST paths
+//
+//  create windows. it seems likely this will require iterating over all the rooms to see
+//  whats next to it. Could also create teh adjacency map during room walk
