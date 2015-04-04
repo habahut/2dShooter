@@ -179,14 +179,22 @@ function renderMap(roomMap, ctx) {
             ctx.rect(i * BlockSize, j * BlockSize, BlockSize, BlockSize);
             ctx.stroke();
             ctx.fill();
+            ctx.closePath();
         }
     }
 }
 
 function renderExpandedRooms(expandedRooms, ctx) {
-    var colors = ["black", "blue", "green", "orange", "yellow"];
+    //for (var i = 0; i < expandedRooms.length,i++) {
+        //expandedRooms[i].render(camera);
+    //}
+    //return;
+
+    console.log(expandedRooms);
+    var colors = ["black", "blue", "green", "orange", "purple"];
     for (var i = 0;i < expandedRooms.length;i++) {
         var room = expandedRooms[i];
+        console.log(colors[i], room);
         for (var j = 0;j < room.length; j++) {
             ctx.beginPath();
             ctx.fillStyle = colors[i];
@@ -194,34 +202,44 @@ function renderExpandedRooms(expandedRooms, ctx) {
             ctx.rect(room[j].x * BlockSize, room[j].y * BlockSize, BlockSize, BlockSize);
             ctx.stroke();
             ctx.fill();
+            ctx.closePath();
         }
+    }
+}
+
+function renderDoors(doors) {
+    ctx.strokeStyle = "white";
+    for (var i = 0;i < doors.length; i++) {
+        var door = doors[i];
+        var hBlock = BlockSize * .5;
+        ctx.lineWidth = 15;
+        ctx.beginPath();
+        ctx.moveTo(door.x1 * BlockSize + hBlock, door.y1 * BlockSize + hBlock);
+        ctx.lineTo(door.x2 * BlockSize + hBlock, door.y2 * BlockSize + hBlock);
+        ctx.stroke();
+        ctx.closePath();
     }
 }
 
 function roomWalk(mst, w, h) {
     // want to get 4 expansions per 10 edges in the graph
     // assuming map is square
-    var numExpansions = 5 / 10 * mst.length,
+    //var numExpansions = 5 / 10 * mst.length,
+    var numExpansions = 5,
         expansions = [],
         expandLocs = [],
         count = 0;
+    console.log('expanion details', mst.length, numExpansions);
+    /////// this should be refactored into its own function
     while (expansions.length < numExpansions) {
         expansions.push(getRandom(0, mst.length - 1));
         expansions.sort(function(a, b) { return a - b });
         makeUnique(expansions);
     }
 
-    console.log('these are our options');
-    console.log(expansions[0]);
-    console.log(mst[expansions[0]]);
-    console.log(expansions[1]);
-    console.log(mst[expansions[1]]);
-    console.log(expansions[2]);
-    console.log(mst[expansions[2]]);
-    console.log(expansions[3]);
-    console.log(mst[expansions[3]]);
-
-    var map = initMap(w, h);
+    var world = {};
+    world.map = initMap(w, h);
+    world.doors = [];
     for (var i = 0;i < mst.length; i++) {
         var x1 = mst[i].origin.x,
             y1 = mst[i].origin.y;
@@ -230,17 +248,17 @@ function roomWalk(mst, w, h) {
         while (true) {
             var dx = x1 - x2,
                 dy = y1 - y2;
-            map[y1][x1] = 1;
+            world.map[y1][x1] = 1;
             if (expansions[count] == i) {
                 var lengthRemaining = Math.abs(x1 - x2 + y1 - y2);
                 if (getRandom(0, lengthRemaining) == 0) {
                     expandLocs.push([x1, y1]);
-                    console.log('found a loc:', x1, y1);
                     chanceExpand = false;
                     count++;
                 }
             }
             if (dx == 0 && dy == 0) break;
+            var door = {"x1": x1, "y1": y1};
             if (Math.abs(dx) > Math.abs(dy)) {
                 if (dx > 0) x1 -= 1;
                 else x1 += 1;
@@ -248,36 +266,29 @@ function roomWalk(mst, w, h) {
                 if (dy > 0) y1 -= 1;
                 else y1 += 1;
             }
+            // add newly modified values
+            door.x2 = x1;
+            door.y2 = y1;
+            world.doors.push(door);
         }
     }
 
-    var expandedRooms = [];
+    world.expandedRooms = [];
+    console.log('expanding rooms: ', expandLocs.length);
     for (var i = 0;i < expandLocs.length;i++) {
         var room = [];
-        mergeRooms(map, expandLocs[i][0], expandLocs[i][1], room);
-        expandedRooms.push(room);
-        console.log(expandedRooms[i]);
-        console.log('--------------');
+        mergeRooms(world.map, expandLocs[i][0], expandLocs[i][1], room);
+        //world.rooms.push(new Room(room, BlockSize));
+                //////////// need to add world.rooms
+                // need to add "roomify" all ones in the array
+                // need to set up doors somehow more intelligently.... can probably cull them within 
+                // room() constructor
+        world.expandedRooms.push(room);
     }
-    console.log(expandedRooms);
-
-    return {"map": map, "expandedRooms": expandedRooms};
-}
-
-function flattenRoomObj(arr) {
-    var newArr = [];
-    for (var i = 0;i < arr.length;i++) {
-        if (obj[i])
-            rooms.push(obj[i]);
-    }
+    return world;
 }
 
 function mergeRooms(map, x, y, rooms, depth) {
-    var prefix = "";
-    for (var l = 0;l < depth;l++) prefix += "  ";
-
-    console.log(prefix, 'merge rooms called!' , x , y , rooms, rooms.push);
-
     if (!(0 <= x && x < map[0].length &&
         0 <= y && y < map.length)) {
            return;
@@ -286,12 +297,10 @@ function mergeRooms(map, x, y, rooms, depth) {
     if (depth > 2) return;
     if (map[y][x] == 0) {
         if (getRandomNR(0,1) < .6 / depth) {
-            console.log(prefix, 'converted ', x ,y );
             map[y][x] = 2;
             rooms.push({"x": x,"Y": y});
         }
     } else if (map[y][x] == 1) {
-        console.log(prefix, "setting: ", x, y);
         rooms.push({"x": x,"y": y});
         map[y][x] = 2;
         /// depth squared?
@@ -328,7 +337,7 @@ $(document).ready(function() {
 
     var height = 10,
         width = 10,
-        numSeeds = 10;
+        numSeeds = 15;
         map1 = initMap(width, height);
 
     var locs = seedMap(map1, numSeeds);
@@ -340,12 +349,11 @@ $(document).ready(function() {
     //console.log('mst', mst);
     //console.log('locs', locs);
 
-    var tuple = roomWalk(mst, width, height),
-        map2 = tuple.map,
-        expandedRooms = tuple.expandedRooms;
-    renderMap(map2, ctx);
-    renderExpandedRooms(expandedRooms, ctx);
-    console.log('roomMap', mapToString(map2));
+    var world = roomWalk(mst, width, height);
+    renderMap(world.map, ctx);
+    renderExpandedRooms(world.expandedRooms, ctx);
+    renderDoors(world.doors);
+    console.log('roomMap', mapToString(world.map));
 });
 
 

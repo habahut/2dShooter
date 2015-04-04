@@ -38,11 +38,11 @@ function convertToExplosion(sprite) {
 };
 
 function generateMonster() {
-    //x = getRandom(0, CanvasWidth);
-    //y = getRandom(0, CanvasHeight);
+    var x = getRandom(0, CanvasWidth),
+        y = getRandom(0, CanvasHeight);
 
-    var x = CanvasWidth - 100,
-        y = CanvasHeight - 100;
+    //var x = CanvasWidth - 100,
+        //y = CanvasHeight - 100;
 
     //x = 1;
     //y = 1;

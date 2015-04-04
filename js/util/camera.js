@@ -13,7 +13,6 @@
                 // need to convert from absolute map coordinates stored in the object to screen coordinates
                 var screenX = sprite.x - camera.x,
                     screenY = sprite.y - camera.y;
-
                 this.ctx.save();
                 this.ctx.translate(screenX, screenY);
                 this.ctx.rotate(sprite.rotation);
@@ -27,9 +26,10 @@
                     this.ctx.stroke();
                     this.ctx.closePath();
                 } else {
-                    //this.ctx.drawImage(sprite.img, -(.5 * sprite.img.width), -(.5 * sprite.img.height),
-                        //sprite.img.width, sprite.img.height);
+                    this.ctx.drawImage(sprite.img, -(.5 * sprite.img.width), -(.5 * sprite.img.height),
+                        sprite.img.width, sprite.img.height);
 
+                    /*
                     this.ctx.beginPath();
                     this.ctx.moveTo(-.5 * sprite.width, -.5 * sprite.height);
                     this.ctx.lineTo(.5 * sprite.width, -.5 * sprite.height);
@@ -38,9 +38,28 @@
                     this.ctx.lineTo(-.5 * sprite.width, -.5 * sprite.height);
                     this.ctx.stroke();
                     this.ctx.closePath(); 
+                    */
                 }
                 this.ctx.restore();
             }
+        },
+        customRender: function(obj, func) {
+            var screenX = sprite.x - camera.x,
+                screenY = sprite.y - camera.y;
+            this.ctx.save();
+            this.ctx.translate(screenX, screenY);
+            func(obj, this.ctx);
+            this.ctx.restore();
+        },
+        customRenderMany: function(objs, func) {
+            var screenX = sprite.x - camera.x,
+                screenY = sprite.y - camera.y;
+            this.ctx.save();
+            this.ctx.translate(screenX, screenY);
+            for (var i = 0;i < objs.length; i++) {
+                func(objs[i], this.ctx);
+            }
+            this.ctx.restore();
         },
         follow: function(sprite) {
             this.x = sprite.x - (.5 * sprite.width);

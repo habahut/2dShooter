@@ -1,7 +1,6 @@
 (function() {
     function Sprite(x, y, img, anim) {
         console.log('attempting to create a sprite');
-        var self = this;
         this.counter = 0;
         this.dx = 0;
         this.dy = 0;
