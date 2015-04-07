@@ -137,8 +137,6 @@ function primmsMethod(locs) {
 }
 
 function renderGraph(mst, locs, ctx) {
-    console.log(mst, locs);
-
     var margin = BlockSize * .15;
     ctx.fillStyle = 'red';
     ctx.strokeStyle = 'blue';
@@ -165,17 +163,12 @@ function renderGraph(mst, locs, ctx) {
 }
 
 function renderMap(roomMap, ctx) {
+    ctx.fillStyle = 'red';
+    ctx.strokeStyle = 'blue';
     for (var i = 0; i < roomMap.length; i++) {
         for (var j = 0; j < roomMap[i].length; j++) {
-            if (roomMap[j][i] == 0 || roomMap[j][i] == 2) continue;
-            if (roomMap[j][i] == 1) {
-                ctx.fillStyle = 'red';
-                ctx.strokeStyle = 'blue';
-            } else {
-                ctx.fillStyle = "blue";
-                ctx.strokeStyle = "red";
-            }
-            ctx.beginPath();
+            if (roomMap[j][i] != 1) continue;
+                        ctx.beginPath();
             ctx.rect(i * BlockSize, j * BlockSize, BlockSize, BlockSize);
             ctx.stroke();
             ctx.fill();
@@ -185,23 +178,18 @@ function renderMap(roomMap, ctx) {
 }
 
 function renderExpandedRooms(expandedRooms, ctx) {
-    //for (var i = 0; i < expandedRooms.length,i++) {
-        //expandedRooms[i].render(camera);
-    //}
-    //return;
-
-    console.log(expandedRooms);
     var colors = ["black", "blue", "green", "orange", "purple"];
     for (var i = 0;i < expandedRooms.length;i++) {
         var room = expandedRooms[i];
-        console.log(colors[i], room);
-        for (var j = 0;j < room.length; j++) {
+        ctx.fillStyle = colors[i];
+        ctx.strokeStyle = colors[i];
+        ctx.lineWidth = 12;
+        for (var j = 0;j < room.walls.length; j++) {
+            var wall = room.walls[j];
             ctx.beginPath();
-            ctx.fillStyle = colors[i];
-            ctx.strokeStyle = colors[i];
-            ctx.rect(room[j].x * BlockSize, room[j].y * BlockSize, BlockSize, BlockSize);
+            ctx.moveTo(wall.x1, wall.y1);
+            ctx.lineTo(wall.x2, wall.y2);
             ctx.stroke();
-            ctx.fill();
             ctx.closePath();
         }
     }
@@ -213,6 +201,7 @@ function renderDoors(doors) {
         var door = doors[i];
         var hBlock = BlockSize * .5;
         ctx.lineWidth = 15;
+        ctx.strokeStyle = "yellow";
         ctx.beginPath();
         ctx.moveTo(door.x1 * BlockSize + hBlock, door.y1 * BlockSize + hBlock);
         ctx.lineTo(door.x2 * BlockSize + hBlock, door.y2 * BlockSize + hBlock);
@@ -222,8 +211,6 @@ function renderDoors(doors) {
 }
 
 function roomWalk(mst, w, h) {
-    // want to get 4 expansions per 10 edges in the graph
-    // assuming map is square
     //var numExpansions = 5 / 10 * mst.length,
     var numExpansions = 5,
         expansions = [],
@@ -274,21 +261,19 @@ function roomWalk(mst, w, h) {
     }
 
     world.expandedRooms = [];
-    console.log('expanding rooms: ', expandLocs.length);
+    // each expanded room gets an ID within the map array
+    // to simplify identifying it later.
+    var expandId = 2; 
     for (var i = 0;i < expandLocs.length;i++) {
         var room = [];
-        mergeRooms(world.map, expandLocs[i][0], expandLocs[i][1], room);
-        //world.rooms.push(new Room(room, BlockSize));
-                //////////// need to add world.rooms
-                // need to add "roomify" all ones in the array
-                // need to set up doors somehow more intelligently.... can probably cull them within 
-                // room() constructor
-        world.expandedRooms.push(room);
+        mergeRooms(world.map, expandId, expandLocs[i][0], expandLocs[i][1], room);
+        world.expandedRooms.push(new Room(room, BlockSize, world.doors));
+        expandId++;
     }
     return world;
 }
 
-function mergeRooms(map, x, y, rooms, depth) {
+function mergeRooms(map, id, x, y, rooms, depth) {
     if (!(0 <= x && x < map[0].length &&
         0 <= y && y < map.length)) {
            return;
@@ -297,27 +282,46 @@ function mergeRooms(map, x, y, rooms, depth) {
     if (depth > 2) return;
     if (map[y][x] == 0) {
         if (getRandomNR(0,1) < .6 / depth) {
-            map[y][x] = 2;
-            rooms.push({"x": x,"Y": y});
+            map[y][x] = id;
+            rooms.push({"x": x,"y": y});
         }
     } else if (map[y][x] == 1) {
         rooms.push({"x": x,"y": y});
-        map[y][x] = 2;
+        map[y][x] = id;
         /// depth squared?
         if (getRandomNR(0,1) < 1 / depth) {
-            mergeRooms(map, x - 1, y, rooms, depth + 1);
+            mergeRooms(map, id, x - 1, y, rooms, depth + 1);
         }
         if (getRandomNR(0,1) < 1 / depth) {
-            mergeRooms(map, x + 1, y, rooms, depth + 1);
+            mergeRooms(map, id, x + 1, y, rooms, depth + 1);
         }
         if (getRandomNR(0,1) < 1 / depth) {
-            mergeRooms(map, x, y - 1, rooms, depth + 1);
+            mergeRooms(map, id, x, y - 1, rooms, depth + 1);
 
         }
         if (getRandomNR(0,1) < 1 / depth) {
-            mergeRooms(map, x, y + 1, rooms, depth + 1);
+            mergeRooms(map, id, x, y + 1, rooms, depth + 1);
         }
     }
+}
+
+function roomifyAll(world) {
+
+
+}
+
+function cullDoors(world) {
+    for (var i = world.doors.length - 1;i >= 0;i--) {
+        door = world.doors[i];
+        // if both the start and end have the same value
+        // and the value is not a "regular" room (1), then the door
+        // is between nodes in the same expanded room and can be removed
+        if (world.map[door.y1][door.x1] == world.map[door.y2][door.x2]) {
+            if (world.map[door.y1][door.x1] != 1) {
+                world.doors.splice(i, 1);
+            }
+        }
+    };
 }
 
 $(document).ready(function() {
@@ -350,6 +354,10 @@ $(document).ready(function() {
     //console.log('locs', locs);
 
     var world = roomWalk(mst, width, height);
+    //roomifyAll() 
+    cullDoors(world);
+    // assign doors() -> assigns all doors to the various rooms they belong to
+    // addWindows() -> self explanatory
     renderMap(world.map, ctx);
     renderExpandedRooms(world.expandedRooms, ctx);
     renderDoors(world.doors);
@@ -360,10 +368,13 @@ $(document).ready(function() {
 
 ////// next steps
 //
+//  turn all rooms into room objects.
+//  cull doors within rooms
+//
+//
+//
 //  maybe try and chose rooms to expand that are far away from eachother? that way 
 //  there will be less frequent overlapping
-//
-//  create doors: this should be doable along the MST paths
 //
 //  create windows. it seems likely this will require iterating over all the rooms to see
 //  whats next to it. Could also create teh adjacency map during room walk
