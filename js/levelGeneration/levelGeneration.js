@@ -68,7 +68,7 @@ function seedMap(map, n) {
     return locs;
 }
 
-// naive closest pairs
+// creates edges between nodes, with edge length equal to the absolute distance
 function createGraph(locs) {
     for (var i = 0;i < locs.length;i++) {
         for (var j = 0;j < locs.length;j++) {
@@ -177,20 +177,22 @@ function renderMap(roomMap, ctx) {
     }
 }
 
-function renderExpandedRooms(expandedRooms, ctx) {
-    var colors = ["black", "blue", "green", "orange", "purple"];
-    for (var i = 0;i < expandedRooms.length;i++) {
-        var room = expandedRooms[i];
-        ctx.fillStyle = colors[i];
-        ctx.strokeStyle = colors[i];
-        ctx.lineWidth = 12;
-        for (var j = 0;j < room.walls.length; j++) {
-            var wall = room.walls[j];
-            ctx.beginPath();
-            ctx.moveTo(wall.x1, wall.y1);
-            ctx.lineTo(wall.x2, wall.y2);
-            ctx.stroke();
-            ctx.closePath();
+function renderRooms(world, ctx) {
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    for (var i = 0;i < world.roomMap.length;i++) {
+        for (var j = 0;j < world.roomMap[0].length;j++) {
+            var room = world.roomMap[i][j];
+            if (room == 0) continue;
+            console.log('the room is: ', room);
+            for (var k = 0;k < room.walls.length; k++) {
+                var wall = room.walls[k];
+                ctx.beginPath();
+                ctx.moveTo(wall.x1, wall.y1);
+                ctx.lineTo(wall.x2, wall.y2);
+                ctx.stroke();
+                ctx.closePath();
+            }
         }
     }
 }
@@ -260,14 +262,14 @@ function roomWalk(mst, w, h) {
         }
     }
 
-    world.expandedRooms = [];
+    world.rooms = [];
     // each expanded room gets an ID within the map array
     // to simplify identifying it later.
     var expandId = 2; 
     for (var i = 0;i < expandLocs.length;i++) {
         var room = [];
         mergeRooms(world.map, expandId, expandLocs[i][0], expandLocs[i][1], room);
-        world.expandedRooms.push(new Room(room, BlockSize, world.doors));
+        world.rooms.push(new Room(room, BlockSize));
         expandId++;
     }
     return world;
@@ -306,8 +308,23 @@ function mergeRooms(map, id, x, y, rooms, depth) {
 }
 
 function roomifyAll(world) {
+    var map = initMap(world.map[0].length, world.map.length);
+    world.rooms.forEach(function(room) {
+        for (var i = 0; i < room.coords.length;i++) {
+            var x = room.coords[i].x,
+                y = room.coords[i].y;
+            map[y][x] = room;
+        }
+    });
 
-
+    for (var i = 0;i < world.map.length;i++) {
+        for (var j = 0;j < world.map[0].length;j++) {
+            if (world.map[i][j] == 1) {
+                map[i][j] = new Room([ {"x": j, "y": i} ], BlockSize);
+            }
+        }
+    }
+    world.roomMap = map;
 }
 
 function cullDoors(world) {
@@ -347,23 +364,21 @@ $(document).ready(function() {
     var locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs);
-
-    //mstToString(mst, locs);
-    //renderGraph(mst, locs, ctx);
-    //console.log('mst', mst);
-    //console.log('locs', locs);
-
     var world = roomWalk(mst, width, height);
-    //roomifyAll() 
+    roomifyAll(world);
     cullDoors(world);
     // assign doors() -> assigns all doors to the various rooms they belong to
     // addWindows() -> self explanatory
-    renderMap(world.map, ctx);
-    renderExpandedRooms(world.expandedRooms, ctx);
+    //renderMap(world.map, ctx);
+    //renderExpandedRooms(world.expandedRooms, ctx);
+    renderRooms(world, ctx);
     renderDoors(world.doors);
-    console.log('roomMap', mapToString(world.map));
+    console.log('roomMap', mapToString(world.roomMap));
 });
 
+////// important: should transform world.map into 
+// world.oldMap or something, world.map should be the new 
+// array of rooms
 
 
 ////// next steps

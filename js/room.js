@@ -1,21 +1,24 @@
 (function() {
-    function Room(coords, roomSize, doors, sprites) {
+    function Room(coords, roomSize, sprites) {
         var self = this;
         this.sprites = sprites || [];
         this.walls = defineWalls(coords, roomSize); 
         this.roomSize = roomSize;
+        this.coords = coords;
     };
 
-    ////////// should also cull the doors here....
     function defineWalls(coords, roomSize) {
+        console.log('define walls', coords, coords.length);
         walls = [];
         for (var i = 0;i < coords.length;i++) {
+            console.log('in the outer loop');
             var thisRoom = coords[i],
                 thisWalls = {"n": 1, "e": 1, "s": 1, "w": 1},
                 x = thisRoom.x,
                 y = thisRoom.y;
 
             for (var j = 0; j < coords.length; j++) {
+                console.log('doing some comparisons' , i, j);
                 if (i == j) continue;
                 var compareRoom = coords[j];
                 // if the y values are the same, compare if they are adjacent in the 
@@ -31,6 +34,7 @@
                     if (thisRoom.y - 1 == compareRoom.y) thisWalls.n = 0;
                 }
             }
+            console.log('finished comparing this walls: ' , thisWalls);
             if (thisWalls.n) {
                 walls.push({"x1": x * roomSize, "y1": y * roomSize, 
                             "x2": (x + 1) * roomSize, "y2": y * roomSize});
