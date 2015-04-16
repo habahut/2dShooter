@@ -178,35 +178,76 @@ function renderMap(roomMap, ctx) {
 }
 
 function renderRooms(world, ctx) {
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 2;
     for (var i = 0;i < world.roomMap.length;i++) {
         for (var j = 0;j < world.roomMap[0].length;j++) {
+
             var room = world.roomMap[i][j];
             if (room == 0) continue;
-            console.log('the room is: ', room);
-            for (var k = 0;k < room.walls.length; k++) {
-                var wall = room.walls[k];
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 4;
+            room.walls.forEach(function(wall) {
                 ctx.beginPath();
                 ctx.moveTo(wall.x1, wall.y1);
                 ctx.lineTo(wall.x2, wall.y2);
                 ctx.stroke();
                 ctx.closePath();
-            }
+            });
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "blue";
+            room.doors.forEach(function(door) {
+                var x1 = 0, y1 = 0,
+                    doorWidth = .2 * BlockSize;
+                if (door.x1 == door.x2) {
+                    x1 = (door.x1 + .5) * BlockSize;
+                    if (door.y1 > door.y2) y1 = door.y1 * BlockSize;
+                    else y1 = door.y2 * BlockSize;
+                } else {
+                    y1 = (door.y1 + .5) * BlockSize;
+                    if (door.x1 > door.x2) x1 = door.x1 * BlockSize;
+                    else x1 = door.x2 * BlockSize;
+                }
+                ctx.beginPath();
+                ctx.rect(x1, y1, doorWidth, doorWidth);
+                ctx.stroke();
+                ctx.closePath();
+            });
+            ctx.lineWidth = 5;
+            ctx.strokeStyle  = "yellow";
+            room.windows.forEach(function(wind) {
+                var x1 = 0, y1 = 0,
+                    windWidth = .2 * BlockSize;
+                if (wind.x1 == wind.x2) {
+                    x1 = (wind.x1 + .5) * BlockSize;
+                    if (wind.y1 > wind.y2) y1 = wind.y1 * BlockSize;
+                    else y1 = wind.y2 * BlockSize;
+                } else {
+                    y1 = (wind.y1 + .5) * BlockSize;
+                    if (wind.x1 > wind.x2) x1 = wind.x1 * BlockSize;
+                    else x1 = wind.x2 * BlockSize;
+                }
+                ctx.beginPath();
+                ctx.rect(x1, y1, windWidth, windWidth);
+                ctx.stroke();
+                ctx.closePath();
+            });
         }
     }
 }
 
-function renderDoors(doors) {
-    ctx.strokeStyle = "white";
-    for (var i = 0;i < doors.length; i++) {
-        var door = doors[i];
-        var hBlock = BlockSize * .5;
-        ctx.lineWidth = 15;
-        ctx.strokeStyle = "yellow";
+function renderGrid(ctx, width, height) {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "black";
+    for (var x = 0;x < width;x += BlockSize) {
         ctx.beginPath();
-        ctx.moveTo(door.x1 * BlockSize + hBlock, door.y1 * BlockSize + hBlock);
-        ctx.lineTo(door.x2 * BlockSize + hBlock, door.y2 * BlockSize + hBlock);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+        ctx.closePath();
+    }
+    for (var y = 0;y < height;y += BlockSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
         ctx.stroke();
         ctx.closePath();
     }
@@ -258,6 +299,7 @@ function roomWalk(mst, w, h) {
             // add newly modified values
             door.x2 = x1;
             door.y2 = y1;
+
             world.doors.push(door);
         }
     }
@@ -269,7 +311,11 @@ function roomWalk(mst, w, h) {
     for (var i = 0;i < expandLocs.length;i++) {
         var room = [];
         mergeRooms(world.map, expandId, expandLocs[i][0], expandLocs[i][1], room);
-        world.rooms.push(new Room(room, BlockSize));
+        // if this location is already taken by other expanded rooms then
+        // it will return with a 0 length. Dont add it to the list in that case
+        if (room.length == 0) continue;
+        var r = new Room(room, BlockSize);
+        world.rooms.push(r);
         expandId++;
     }
     return world;
@@ -320,7 +366,9 @@ function roomifyAll(world) {
     for (var i = 0;i < world.map.length;i++) {
         for (var j = 0;j < world.map[0].length;j++) {
             if (world.map[i][j] == 1) {
-                map[i][j] = new Room([ {"x": j, "y": i} ], BlockSize);
+                var r = new Room([ {"x": j, "y": i} ], BlockSize);
+                map[i][j] = r;
+                world.rooms.push(r);
             }
         }
     }
@@ -336,9 +384,46 @@ function cullDoors(world) {
         if (world.map[door.y1][door.x1] == world.map[door.y2][door.x2]) {
             if (world.map[door.y1][door.x1] != 1) {
                 world.doors.splice(i, 1);
+                continue;
             }
         }
+        world.roomMap[door.y1][door.x1].addDoor(door);
+        world.roomMap[door.y2][door.x2].addDoor(door);
     };
+}
+
+function buildGraph(world) {
+    /// this is getting duplicates.
+    // we need to figure out some way to organize the x & y coordinates
+    // so that we can reference them easily, instead of having to put
+    // for loops everywhere.
+    world.rooms.forEach(function(room) {
+        room.coords.forEach(function(coord) {
+            var x = coord.x,
+                y = coord.y,
+                // if this value == 1 then it is a standard room.
+                // but all standard rooms are == 1. We want standard rooms
+                // that are neighbors to still register.
+                thisId = (world.map[y][x] == 1) ? -1 : world.map[y][x];
+            /// can we move this out without losing the scope of 'room'?
+            function compare(cx, cy) {
+                if (!(0 <= cx && cx < world.map[0].length &&
+                    0 <= cy && cy < world.map.length)) {
+                        return;
+                }
+                if (world.map[cy][cx] != thisId && world.map[cy][cx] != 0) {
+                    room.neighbors.push(world.roomMap[cy][cx]);
+                    if (! room.hasDoor(cx, cy) ) {
+                        room.addWindow(x, y, cx, cy);
+                    }
+                }
+            }
+            compare(x + 1, y);
+            compare(x - 1, y);
+            compare(x, y + 1);
+            compare(x, y - 1)
+        });
+    });
 }
 
 $(document).ready(function() {
@@ -355,6 +440,7 @@ $(document).ready(function() {
     ctx.rect(0,0, CanvasWidth, CanvasHeight);
     ctx.fillStyle = "white";
     ctx.fill();
+    renderGrid(ctx, canvas.width, canvas.height);
 
     var height = 10,
         width = 10,
@@ -367,29 +453,26 @@ $(document).ready(function() {
     var world = roomWalk(mst, width, height);
     roomifyAll(world);
     cullDoors(world);
-    // assign doors() -> assigns all doors to the various rooms they belong to
+    buildGraph(world);
     // addWindows() -> self explanatory
-    //renderMap(world.map, ctx);
-    //renderExpandedRooms(world.expandedRooms, ctx);
     renderRooms(world, ctx);
-    renderDoors(world.doors);
+    console.log('world:', world);
     console.log('roomMap', mapToString(world.roomMap));
 });
 
-////// important: should transform world.map into 
-// world.oldMap or something, world.map should be the new 
-// array of rooms
-
-
 ////// next steps
 //
-//  turn all rooms into room objects.
-//  cull doors within rooms
+//  turn the room objects themselves into the graph
+//  each room should have a neighbors object with links to the other
+//  rooms within it.
+//  assignThis in a method that checks all adjacency. If there is a door between
+//  the two rooms, make them neighbors, if not put a window there.
+//
+//
 //
 //
 //
 //  maybe try and chose rooms to expand that are far away from eachother? that way 
 //  there will be less frequent overlapping
 //
-//  create windows. it seems likely this will require iterating over all the rooms to see
-//  whats next to it. Could also create teh adjacency map during room walk
+//  we shoudl really create a world object with convenience methods...

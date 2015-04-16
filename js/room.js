@@ -5,20 +5,20 @@
         this.walls = defineWalls(coords, roomSize); 
         this.roomSize = roomSize;
         this.coords = coords;
+        this.doors = [];
+        this.neighbors = [];
+        this.windows = [];
     };
 
     function defineWalls(coords, roomSize) {
-        console.log('define walls', coords, coords.length);
         walls = [];
         for (var i = 0;i < coords.length;i++) {
-            console.log('in the outer loop');
             var thisRoom = coords[i],
                 thisWalls = {"n": 1, "e": 1, "s": 1, "w": 1},
                 x = thisRoom.x,
                 y = thisRoom.y;
 
             for (var j = 0; j < coords.length; j++) {
-                console.log('doing some comparisons' , i, j);
                 if (i == j) continue;
                 var compareRoom = coords[j];
                 // if the y values are the same, compare if they are adjacent in the 
@@ -34,7 +34,6 @@
                     if (thisRoom.y - 1 == compareRoom.y) thisWalls.n = 0;
                 }
             }
-            console.log('finished comparing this walls: ' , thisWalls);
             if (thisWalls.n) {
                 walls.push({"x1": x * roomSize, "y1": y * roomSize, 
                             "x2": (x + 1) * roomSize, "y2": y * roomSize});
@@ -54,6 +53,38 @@
         }
         return walls;
     }
+
+    Room.prototype = {
+        "addDoor": function(door) {
+            // "orient the door" such that this door's x1 and y1 are in this room
+            // and x2, y2 are in the room it leads to
+            var flag = false;
+            this.coords.forEach(function(coord) {
+                if (door.x1 == coord.x && door.y1 == coord.y) {
+                    flag = true;
+                    return;
+                }
+            });
+            if (! flag) {
+                door = {'x1': door.x2, 'y1': door.y2, 'x2': door.x1, 'y2': door.y1};
+            }
+            this.doors.push(door);
+        },
+        "hasDoor": function(x,y) {
+            var flag = false;
+            this.doors.forEach(function(door) {
+                if (door.x2 == x && door.y2 == y) {
+                    flag = true;
+                    return;
+                }
+            });
+            return flag;
+        },
+        "addWindow": function(x1, y1, x2, y2) {
+            this.windows.push({"x1": x1, "y1": y1, "x2": x2, "y2": y2});
+        }
+
+    };
 
     function render(camera) {
         camera.customRenderMany(this.walls, function(ctx, wall) {

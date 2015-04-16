@@ -46,6 +46,9 @@
 
     Sprite.prototype = {
         // any reason why this is not the same function as above?
+        //
+        //
+        // also why does this function have a name?
         setAnim : function Sprite_setAnim(img, totalDuration, tw, th, rows, cols, numFrames, isAnimating, cycles) {
             console.log('wut');
             this.img = img;
