@@ -49,6 +49,12 @@ indexXYCount = 0;
             }
             return false;
         },
+        "getByX": function(x) {
+            if (typeof this.map[x] != "undefined") {
+                return this.map[x];
+            }
+            return false;
+        },
         ///// TODO: this will delete all entries with index x,y.
         // should pass the object to be deleted here as well.
         "delete": function(x, y) {
@@ -74,10 +80,6 @@ indexXYCount = 0;
                 for (var y in this.map[x]) {
                     // since this is a multiple IndexXY, iterate over each element
                     // at each index.
-                    //
-                    //console.log('callback' , callback);
-                    //console.log("--- ", this.map[x][y]);
-                    //console.log("       ", this.map[x][y].forEach);
                     this.map[x][y].forEach(function(element) {
                         callback(element, parseInt(x), parseInt(y), this.map);
                     })

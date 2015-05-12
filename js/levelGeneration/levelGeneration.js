@@ -175,14 +175,9 @@ function primmsMethod(locs) {
     for (var i = 1;i < locs.length;i++)  nodesUsed.push(false);
 
     while (nodes.length < locs.length) {
-        //console.log('------------- PASS: ', nodes.length, ' <= ', locs.length);
-        //console.log(nodesUsed);
         // search all nodes currently in MST for smallest edge
         var nextEdge = {"length": 999999};
         for (var i = 0; i < nodes.length;i++) {
-            //console.log();
-            //console.log('looking at node: ', nodes[i]);
-
             var thisNode = nodes[i];
             for (var j = 0; j < thisNode.edges.length; j++) {
                 // don't repeat edges
@@ -197,11 +192,7 @@ function primmsMethod(locs) {
                     break;
                 }
             }
-            //console.log('this shorted node found was: ', nextEdge);
         }
-        //console.log('---- pass completed');
-        //console.log('the shortest node found was : ', nextEdge);
-        //console.log('from : ' , locs, ' to', nextEdge.dest);
         edges.push(nextEdge);
         nextEdge.used = true;
         // set the reverse of this edge to used as well
@@ -220,7 +211,7 @@ function primmsMethod(locs) {
     return edges;
 }
 
-function roomWalk(mst, w, h) {
+function roomWalk(mst, w, h,       ctx) {
     //var numExpansions = 5 / 10 * mst.length,
     var numExpansions = 8,
         expansions = [],
@@ -290,6 +281,13 @@ function roomWalk(mst, w, h) {
         });
         world.rooms.push(room);
         expandId++;
+
+
+        //// break here
+        //renderRooms(world, ctx);
+        //"adfadf".forEach();
+
+
     }
     return world;
 }
@@ -336,7 +334,7 @@ function roomifyAll(world) {
     });
 }
 
-function cullDoors(world, ctx) {
+function cullDoors(world) {
     for (var i = world.doors.length - 1;i >= 0;i--) {
         var door = world.doors[i];
         // if both the start and end have the same value
@@ -352,7 +350,7 @@ function cullDoors(world, ctx) {
     };
 }
 
-function buildGraph(world, ctx) {
+function buildGraph(world) {
     world.rooms.forEach(function(room) {
         function compare(x, y, cx, cy) {
             if (!(0 <= cx && cx < MapWidth)
@@ -400,10 +398,10 @@ $(document).ready(function() {
         locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs),
-        world = roomWalk(mst, MapWidth, MapHeight);
+        world = roomWalk(mst, MapWidth, MapHeight,      ctx);
     roomifyAll(world);
-    cullDoors(world, ctx);
-    buildGraph(world, ctx);
+    cullDoors(world);
+    buildGraph(world);
 
 
     renderRooms(world, ctx);
