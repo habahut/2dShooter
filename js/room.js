@@ -4,7 +4,6 @@ ROOM_ID = 0;
         var self = this;
         this.sprites = sprites || [];
         this.roomSize = roomSize;
-        this.maxDoorSize = .5 * roomSize;
         this.maxwindowSize = .2 * roomSize;
         this.coords = new IndexXY("single");
         coords.forEach(function(coord) {
@@ -26,7 +25,6 @@ ROOM_ID = 0;
             // coordinates specify the dimensions of this room.
             // check each adjacent space. If it is not occupied by another coordinate,
             // then we should add the wall.
-            console.log('this coord', coord, x, y);
             if (! self.coords.get(x + 1, y)) {
                 coord.walls.e = {"x1": xP1 * roomSize, "y1": y * roomSize,
                                 "x2": xP1 * roomSize, "y2": yP1 * roomSize};
@@ -46,36 +44,60 @@ ROOM_ID = 0;
         });
     }
 
-    Room.prototype = {
-        //  TODO:
-        //  this should cut the wall in half that the door is set up on...
-        //  should probably create a door Class actually, because then we can
-        //  do interesting things like attach physics to doors and such.
-        "addDoor": function(door) {
-            // "orient the door" such that this door's x1 and y1 are in this room
-            // do this by checking if x1,y1 are coordinates in this room object.
-            if (! this.coords.get(door.x1, door.y1)) {
-                var doorCopy = {'x1': door.x2, 'y1': door.y2, 'x2': door.x1, 'y2': door.y1};
-            } else {
-                var doorCopy = {'x1': door.x1, 'y1': door.y1, 'x2': door.x2, 'y2': door.y2};
-            }
-            var direction = '';
-            if (x1 == x2) {
-                if (y2 > y1) direction = 's';
-                else direction = 'n';
-            } else {
-                if (x2 > x1) direction = 'e';
-                else direction = 'w';
-            }
-            splitWall(x1, y1
+    function splitWall(self, door, invert) {
+        var inversions = {"n": "s", "s": "n",
+                          "e": "w", "w": "e"};
+        var roomX = 'x',
+            roomY = 'y',
+            truePosition = '';
+        if (invert) {
+            // this is the adjacent room, cut out the opposite wall
+            var truePosition = inversions[door.position],
+                roomX = door.r2x,
+                roomY = door.r2y;
+        }
+        else {
+            var truePosition = door.position,
+                roomX = door.r1x,
+                roomY = door.r1y;
+        }
+        console.log('');
+        console.log('room ID', self.id);
+        console.log('the roomX & roomY', roomX, roomY);
+        console.log('all the walls', deepCopy(self.coords.get(roomX, roomY).walls));
+        console.log('the position' , truePosition);
+        var wall = self.coords.get(roomX, roomY).walls[truePosition];
+        console.log('we are going to chop up ' , deepCopy(wall));
+        wall1 = {"x1": wall.x1, "y1": wall.y1, "x2": door.x1, "y2": door.y1},
+        wall2 = {"x1": door.x2, "y1": door.y2, "x2": wall.x2, "y2": wall.y2};
+        console.log('it has become' , wall1);
+        console.log('               ', wall2);
+        console.log('');
+        self.coords.get(roomX, roomY).walls[truePosition] = [wall1, wall2];
+    }
 
-            this.doors.insert(doorCopy.x1, doorCopy.y1, doorCopy);
+    Room.prototype = {
+        // When two rooms have a door between them, we don't want to add
+        // 2 doors to the map. So instead we add the door to one room
+        // and then 'cut out' the doors shape into the other.
+        "addDoor": function(door) {
+            splitWall(this, door, false);
+            this.doors.insert(door.r1x, door.r1y, door);
+        },
+        "cutOutDoor": function(door) {
+            // in this case, the door was added to the other room, so
+            // we know the door is oriented around that room. So we need to reverse
+            // the position variable, a.k.a. a door in the south wall for the other room
+            // is a door through the north wall of this room.
+            splitWall(this, door, true);
+            this.doors.insert(door.r2x, door.r2y, door);
         },
         "hasDoorBetween": function(ox, oy, tx, ty) {
             var flag = false,
                 doors = this.doors.getMany(ox, oy);
             if (doors) { 
                 doors.forEach(function(door) {
+                    // this isn't going to return true ever...
                     if (door && door.x2 == tx && door.y2 == ty) {
                         flag = true;
                     }
@@ -90,16 +112,22 @@ ROOM_ID = 0;
         },
         "render": function(ctx) {
             var self = this;
+            function drawWall(wall) {
+                ctx.beginPath();
+                ctx.moveTo(wall.x1, wall.y1);
+                ctx.lineTo(wall.x2, wall.y2);
+                ctx.stroke();
+                ctx.closePath();
+            }
             ctx.strokeStyle = "red";
             ctx.lineWidth = 4;
             this.coords.forEach(function(coord) {
                 for (var p in coord.walls) {
-                    var wall = coord.walls[p];
-                    ctx.beginPath();
-                    ctx.moveTo(wall.x1, wall.y1);
-                    ctx.lineTo(wall.x2, wall.y2);
-                    ctx.stroke();
-                    ctx.closePath();
+                    if (typeof coord.walls[p].length == "undefined") {
+                        drawWall(coord.walls[p]);
+                    } else {
+                        coord.walls[p].forEach(drawWall);
+                    }
                 }
             });
 

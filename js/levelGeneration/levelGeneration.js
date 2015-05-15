@@ -281,13 +281,6 @@ function roomWalk(mst, w, h,       ctx) {
         });
         world.rooms.push(room);
         expandId++;
-
-
-        //// break here
-        //renderRooms(world, ctx);
-        //"adfadf".forEach();
-
-
     }
     return world;
 }
@@ -334,8 +327,13 @@ function roomifyAll(world) {
     });
 }
 
-function cullDoors(world) {
+function cullDoors(world, ctx) { 
+    /// TODO: have a think: should this be an IndexXY?
+    var doors = [];
     for (var i = world.doors.length - 1;i >= 0;i--) {
+        console.log('');
+        console.log('');
+
         var door = world.doors[i];
         // if both the start and end have the same value
         // and the value is not a "regular" room (1), then the door
@@ -344,9 +342,12 @@ function cullDoors(world) {
             world.doors.splice(i, 1);
             continue;
         }
+        var doorObj = new Door(door.x1, door.y1, door.x2, door.y2, BlockSize);
+        world.map.get(door.x1, door.y1).addDoor(doorObj);
+        world.map.get(door.x2, door.y2).cutOutDoor(doorObj);
 
-        world.map.get(door.x1, door.y1).addDoor(door);
-        world.map.get(door.x2, door.y2).addDoor(door);
+
+        //renderRooms(world, ctx);
     };
 }
 
@@ -394,13 +395,13 @@ $(document).ready(function() {
 
     //var numSeeds = 15;
     var map1 = initMap(MapWidth, MapHeight),
-        numSeeds = 20,
+        numSeeds = 2,
         locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs),
         world = roomWalk(mst, MapWidth, MapHeight,      ctx);
     roomifyAll(world);
-    cullDoors(world);
+    cullDoors(world, ctx);
     buildGraph(world);
 
 

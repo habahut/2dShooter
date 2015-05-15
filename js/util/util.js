@@ -37,8 +37,13 @@
             (r2.y + r2.hHeight) < r1.y);
     }
 
+    function deepCopy(o) {
+        return JSON.decode(JSON.encode(o));
+    }
+
     window.getRandom = getRandom;
     window.getRandomNR = getRandomNR;
     window.collideRects = collideRects;
     window.makeUnique = makeUnique;
+    window.deepCopy = deepCopy;
 })();
