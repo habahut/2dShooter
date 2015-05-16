@@ -38,7 +38,7 @@
     }
 
     function deepCopy(o) {
-        return JSON.decode(JSON.encode(o));
+        return JSON.parse(JSON.stringify(o));
     }
 
     window.getRandom = getRandom;

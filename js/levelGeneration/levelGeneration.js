@@ -83,6 +83,19 @@ function renderRooms(world, ctx) {
     return;
 }
 
+function renderMultiRooms(world, ctx) {
+    ctx.strokeStyle = "blue";
+    world.multiRoomObjects.forEach(function(obj) {
+        ctx.beginPath();
+        ctx.moveTo(obj.x1, obj.y1);
+        ctx.lineTo(obj.x2, obj.y1);
+        ctx.lineTo(obj.x2, obj.y2);
+        ctx.lineTo(obj.x1, obj.y2);
+        ctx.stroke();
+        ctx.closePath();
+    });
+}
+
 function labelAxis(ctx) {
     ctx.rect(BlockSize,BlockSize, CanvasWidth, CanvasHeight);
     ctx.fillStyle = "white";
@@ -331,9 +344,6 @@ function cullDoors(world, ctx) {
     /// TODO: have a think: should this be an IndexXY?
     var doors = [];
     for (var i = world.doors.length - 1;i >= 0;i--) {
-        console.log('');
-        console.log('');
-
         var door = world.doors[i];
         // if both the start and end have the same value
         // and the value is not a "regular" room (1), then the door
@@ -342,12 +352,15 @@ function cullDoors(world, ctx) {
             world.doors.splice(i, 1);
             continue;
         }
+        console.log('-----');
+        //c\nsole.log('the door', door.x1, door.y1, door.x2, door.y2);
+
         var doorObj = new Door(door.x1, door.y1, door.x2, door.y2, BlockSize);
         world.map.get(door.x1, door.y1).addDoor(doorObj);
-        world.map.get(door.x2, door.y2).cutOutDoor(doorObj);
-
-
-        //renderRooms(world, ctx);
+        world.map.get(door.x1, door.y1).cutWall(door.x1, door.y1, doorObj, doorObj.position);
+        world.map.get(door.x2, door.y2).addDoor2(doorObj);
+        world.map.get(door.x2, door.y2).cutWall(door.x2, door.y2, doorObj, doorObj.invPosition);
+        world.multiRoomObjects.push(doorObj);
     };
 }
 
@@ -395,17 +408,26 @@ $(document).ready(function() {
 
     //var numSeeds = 15;
     var map1 = initMap(MapWidth, MapHeight),
-        numSeeds = 2,
+        numSeeds = 20,
         locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs),
         world = roomWalk(mst, MapWidth, MapHeight,      ctx);
+    // render everything in this room. Collide the adjacent rooms with the 
+    // camera and the field of vision.
+    // nonRoomedObjects are objects that aren't in one single room, such as 
+    // doors. They need to all be checked individually.
+    ////// need some useful structure for this thing probably....
+    world.multiRoomObjects = [];
     roomifyAll(world);
+    renderRooms(world, ctx);
+
     cullDoors(world, ctx);
     buildGraph(world);
 
 
     renderRooms(world, ctx);
+    renderMultiRooms(world, ctx);
 
     console.log('world:', world);
 });

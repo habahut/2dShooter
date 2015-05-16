@@ -1,5 +1,4 @@
-ROOM_ID = 0;
-(function() {
+ROOM_ID = 0;(function() {
     function Room(coords, roomSize, sprites) {
         var self = this;
         this.sprites = sprites || [];
@@ -77,28 +76,34 @@ ROOM_ID = 0;
     }
 
     Room.prototype = {
-        // When two rooms have a door between them, we don't want to add
-        // 2 doors to the map. So instead we add the door to one room
-        // and then 'cut out' the doors shape into the other.
+        // these two methods reflect the fact that the door objects are immutable.
+        // The door needs to be added to 2 rooms, but the relevant coordinates (door.r1x vs door.r2x)
+        // don't change, so we need a clear way to specify if this is room 1 or 2 of the doors coordinates.
+        //
+        // the current plan is that each room gets its own copy of the coordinates of the door
+        // just so it has its own convenient way to check the presence of it
+        //
+        // the door itself is a multiRoom object, and its state is maintained elsewhere.
         "addDoor": function(door) {
-            splitWall(this, door, false);
             this.doors.insert(door.r1x, door.r1y, door);
         },
-        "cutOutDoor": function(door) {
-            // in this case, the door was added to the other room, so
-            // we know the door is oriented around that room. So we need to reverse
-            // the position variable, a.k.a. a door in the south wall for the other room
-            // is a door through the north wall of this room.
-            splitWall(this, door, true);
-            this.doors.insert(door.r2x, door.r2y, door);
+        "addDoor2": function(door) {
+            var doorCopy = {"r1x": door.r2x, "r1y": door.r2y, "r2x": door.r1x, "r2y": door.r1y};
+            this.doors.insert(door.r2x, door.r2y, doorCopy);
+        },
+        "cutWall": function(roomX, roomY, obj, wallPosition) {
+            var wall = this.coords.get(roomX, roomY).walls[wallPosition],
+                wall1 = {"x1": wall.x1, "y1": wall.y1, "x2": obj.x1, "y2": obj.y1},
+                wall2 = {"x1": obj.x2, "y1": obj.y2, "x2": wall.x2, "y2": wall.y2};
+            this.coords.get(roomX, roomY).walls[wallPosition] = [wall1, wall2];
+
         },
         "hasDoorBetween": function(ox, oy, tx, ty) {
             var flag = false,
                 doors = this.doors.getMany(ox, oy);
             if (doors) { 
                 doors.forEach(function(door) {
-                    // this isn't going to return true ever...
-                    if (door && door.x2 == tx && door.y2 == ty) {
+                    if (door && door.r2x == tx && door.r2y == ty) {
                         flag = true;
                     }
                 });
