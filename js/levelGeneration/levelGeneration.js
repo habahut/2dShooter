@@ -375,6 +375,7 @@ function buildGraph(world) {
             if (room != other && other != 0) {
                 room.neighbors.insert(cx, cy, other);
                 if (! room.hasDoorBetween(x, y, cx, cy) ) {
+                    var windowObj = new WindowObj(x, y, cx, cy, BlockSize);
                     room.addWindow(x, y, cx, cy);
                 }
             }

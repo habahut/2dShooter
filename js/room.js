@@ -43,38 +43,6 @@ ROOM_ID = 0;(function() {
         });
     }
 
-    function splitWall(self, door, invert) {
-        var inversions = {"n": "s", "s": "n",
-                          "e": "w", "w": "e"};
-        var roomX = 'x',
-            roomY = 'y',
-            truePosition = '';
-        if (invert) {
-            // this is the adjacent room, cut out the opposite wall
-            var truePosition = inversions[door.position],
-                roomX = door.r2x,
-                roomY = door.r2y;
-        }
-        else {
-            var truePosition = door.position,
-                roomX = door.r1x,
-                roomY = door.r1y;
-        }
-        console.log('');
-        console.log('room ID', self.id);
-        console.log('the roomX & roomY', roomX, roomY);
-        console.log('all the walls', deepCopy(self.coords.get(roomX, roomY).walls));
-        console.log('the position' , truePosition);
-        var wall = self.coords.get(roomX, roomY).walls[truePosition];
-        console.log('we are going to chop up ' , deepCopy(wall));
-        wall1 = {"x1": wall.x1, "y1": wall.y1, "x2": door.x1, "y2": door.y1},
-        wall2 = {"x1": door.x2, "y1": door.y2, "x2": wall.x2, "y2": wall.y2};
-        console.log('it has become' , wall1);
-        console.log('               ', wall2);
-        console.log('');
-        self.coords.get(roomX, roomY).walls[truePosition] = [wall1, wall2];
-    }
-
     Room.prototype = {
         // these two methods reflect the fact that the door objects are immutable.
         // The door needs to be added to 2 rooms, but the relevant coordinates (door.r1x vs door.r2x)
@@ -110,11 +78,16 @@ ROOM_ID = 0;(function() {
             }
             return flag;
         },
-        "addWindow": function(x1, y1, x2, y2) {
-            // TODO: make the window an object maybe?
-            // also make it so that multiple windows can be added?
+        "addWindow": function(x1, y1, windowObj) {
+            // TODO split this into multiple windows?
             this.windows.insert(x1, y1, {"x1": x1, "y1": y1, "x2": x2, "y2": y2});
         },
+        /*
+        "addWindow2": function(x1, y1, windowObj) {
+            var windowCopy = {"r1x": r2x, "r1y": r2y, "r2x": r1x, "r2y": r1y}; 
+            this.windows.insert(x1, y1, windowCopy);
+        },
+        */
         "render": function(ctx) {
             var self = this;
             function drawWall(wall) {
