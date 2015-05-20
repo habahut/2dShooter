@@ -47,27 +47,16 @@ function generateMonster() {
     //x = 1;
     //y = 1;
 
-    console.log('monster: ', x, y);
     res = resources.get('monster');
     entities.push(new Sprite(x, y, res));
 }
 
 function mouseClick(e) {
-    var x = e.offsetX,
-        y = e.offsetY;
-    /// need some sort of 'get bounding box' function
-    // which would be useful in other situations as well, such as rendering
+    var x = e.offsetX + camera.x,
+        y = e.offsetY + camera.y;
     entities.forEach(function(sprite) {
-        /*
-        console.log('sprite', sprite);
-        console.log('click: x', x, 'y', y);
-        console.log('sprite x' , sprite.x - .5 * sprite.width, sprite.x + .5 * sprite.width);
-        console.log('sprite y', sprite.y - .5 * sprite.height, sprite.y + .5 * sprite.height);
-        console.log('-----');
-        */
         if (sprite.x -.5 * sprite.width < x && x < sprite.x + .5 * sprite.width) {
             if (sprite.y - .5 * sprite.height < y && y < sprite.y + .5 * sprite.height) {
-                console.log('here');
                 convertToExplosion(sprite);
             }
         }

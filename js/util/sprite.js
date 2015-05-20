@@ -1,6 +1,5 @@
 (function() {
     function Sprite(x, y, img, anim) {
-        console.log('attempting to create a sprite');
         this.counter = 0;
         this.dx = 0;
         this.dy = 0;
@@ -50,7 +49,6 @@
         //
         // also why does this function have a name?
         setAnim : function Sprite_setAnim(img, totalDuration, tw, th, rows, cols, numFrames, isAnimating, cycles) {
-            console.log('wut');
             this.img = img;
             this.anim = Sprite_initAnim(totalDuration, tw, th, rows, cols, numFrames, isAnimating, cycles);
         },
