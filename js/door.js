@@ -55,5 +55,18 @@
         }
     }
 
+    Door.prototype = {
+        "render": function(ctx) {
+            ctx.strokeStyle = "blue";
+            ctx.beginPath();
+            ctx.moveTo(this.x1, this.y1);
+            ctx.lineTo(this.x2, this.y1);
+            ctx.lineTo(this.x2, this.y2);
+            ctx.lineTo(this.x1, this.y2);
+            ctx.stroke();
+            ctx.closePath();
+        }
+    };
+
     window.Door = Door;
 })()

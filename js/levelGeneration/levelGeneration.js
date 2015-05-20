@@ -83,16 +83,22 @@ function renderRooms(world, ctx) {
     return;
 }
 
+function renderWindows(world, ctx) {
+    world.windows.forEach(function(windoh) {
+        windoh.render(ctx);
+    });
+}
+
+function renderDoors(world, ctx) {
+    world.doors.forEach(function(door) {
+        door.render(ctx);
+    });
+}
+
 function renderMultiRooms(world, ctx) {
-    ctx.strokeStyle = "blue";
-    world.multiRoomObjects.forEach(function(obj) {
-        ctx.beginPath();
-        ctx.moveTo(obj.x1, obj.y1);
-        ctx.lineTo(obj.x2, obj.y1);
-        ctx.lineTo(obj.x2, obj.y2);
-        ctx.lineTo(obj.x1, obj.y2);
-        ctx.stroke();
-        ctx.closePath();
+    world.multiRoomObjs.forEach(function(obj) {
+        console.log('trying to render: ' ,obj);
+        obj.render(ctx);
     });
 }
 
@@ -224,7 +230,7 @@ function primmsMethod(locs) {
     return edges;
 }
 
-function roomWalk(mst, w, h,       ctx) {
+function roomWalk(mst, w, h) {
     //var numExpansions = 5 / 10 * mst.length,
     var numExpansions = 8,
         expansions = [],
@@ -340,7 +346,7 @@ function roomifyAll(world) {
     });
 }
 
-function cullDoors(world, ctx) { 
+function cullDoors(world) {
     /// TODO: have a think: should this be an IndexXY?
     var doors = [];
     for (var i = world.doors.length - 1;i >= 0;i--) {
@@ -349,22 +355,20 @@ function cullDoors(world, ctx) {
         // and the value is not a "regular" room (1), then the door
         // is between nodes in the same expanded room and can be removed
         if (world.map.get(door.x1, door.y1) == world.map.get(door.x2, door.y2) ) {
-            world.doors.splice(i, 1);
             continue;
         }
-        console.log('-----');
-        //c\nsole.log('the door', door.x1, door.y1, door.x2, door.y2);
-
         var doorObj = new Door(door.x1, door.y1, door.x2, door.y2, BlockSize);
         world.map.get(door.x1, door.y1).addDoor(doorObj);
         world.map.get(door.x1, door.y1).cutWall(door.x1, door.y1, doorObj, doorObj.position);
         world.map.get(door.x2, door.y2).addDoor2(doorObj);
         world.map.get(door.x2, door.y2).cutWall(door.x2, door.y2, doorObj, doorObj.invPosition);
-        world.multiRoomObjects.push(doorObj);
+        doors.push(doorObj);
     };
+    world.doors = doors;
 }
 
 function buildGraph(world) {
+    world.windows = [];
     world.rooms.forEach(function(room) {
         function compare(x, y, cx, cy) {
             if (!(0 <= cx && cx < MapWidth)
@@ -377,6 +381,7 @@ function buildGraph(world) {
                 if (! room.hasDoorBetween(x, y, cx, cy) ) {
                     var windowObj = new WindowObj(x, y, cx, cy, BlockSize);
                     room.addWindow(x, y, cx, cy);
+                    world.windows.push(windowObj);
                 }
             }
         }
@@ -392,6 +397,47 @@ function buildGraph(world) {
     return;
 }
 
+/// returns a 'world' object that contains the map.
+// Structure:
+//  world: {
+//      doors: [ door1: { 
+//                          x1,y1,x2,y2                // coordinates
+//                          r1x, r1y, r2x, r2y         // the two rooms it is between
+//                          position                   // which compass direction wall its on 'e', 'w', 's', 'n'
+//                          function render            // draw the door
+//                          function collide(obj)      // returns true if the obj
+//                      }
+//              ... ],
+//      windows: [ window1: { same as above }
+//              ...],
+//      rooms: [ room1: {
+//                          coords (indexXY) {
+//                              x -> y
+//                                  walls: {
+//                                      'n/s/w/e' { x1, y2, x2, y2 }
+//                                   }
+//                          }                                       // easily accessible storage for walls and coordinates of this room
+//                          doors (indexXY) {
+//                              x -> y
+//                                  doors: [
+//                                      { x1, y1, x2, y2 }          // this may either be the door object or {x1,y1,x2,y2}. either way only these
+//                                                                  // values should be expected
+//                                  ]
+//                          }
+//                          neighbors(indexXY) {
+//                              x -> y:
+//                                  room                            // same as this
+//                          }
+//                          windows(indexXY) {
+//                              x -> y:
+//                                  window                          // same as doors, should only rely on {x1,y1,x2,y2}
+//                          }
+//                          sprites (array) 
+//                      }
+//              ...]
+//      multiRoomObjects: [ obj ]     // some sort of object that spans multiple rooms. Not currently used
+//      map: indexXY                  // maps coordinates to the rooms stored in the array above
+//  }
 $(document).ready(function() {
     var jCanvas = $("#mainCanvas");
     jCanvas.css('background-color', 'rgba(255, 255, 255, 0)');
@@ -413,33 +459,17 @@ $(document).ready(function() {
         locs = seedMap(map1, numSeeds);
     createGraph(locs);
     var mst = primmsMethod(locs),
-        world = roomWalk(mst, MapWidth, MapHeight,      ctx);
-    // render everything in this room. Collide the adjacent rooms with the 
-    // camera and the field of vision.
-    // nonRoomedObjects are objects that aren't in one single room, such as 
-    // doors. They need to all be checked individually.
-    ////// need some useful structure for this thing probably....
-    world.multiRoomObjects = [];
+        world = roomWalk(mst, MapWidth, MapHeight);
+    world.multiRoomObjs = [];
     roomifyAll(world);
     renderRooms(world, ctx);
 
-    cullDoors(world, ctx);
+    cullDoors(world);
     buildGraph(world);
 
-
     renderRooms(world, ctx);
-    renderMultiRooms(world, ctx);
+    renderDoors(world, ctx);
+    renderWindows(world, ctx);
 
     console.log('world:', world);
 });
-
-////// next steps
-//
-//  windows are only getting added to one side. 
-//  should step through it with the debugger... maybe its getting 
-//  over written again?
-//
-//
-//
-//  maybe try and chose rooms to expand that are far away from eachother? that way 
-//  there will be less frequent overlapping

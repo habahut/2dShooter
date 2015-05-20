@@ -3,7 +3,6 @@ ROOM_ID = 0;(function() {
         var self = this;
         this.sprites = sprites || [];
         this.roomSize = roomSize;
-        this.maxwindowSize = .2 * roomSize;
         this.coords = new IndexXY("single");
         coords.forEach(function(coord) {
             self.coords.insert(coord.x, coord.y, {"x": coord.x, "y": coord.y, "walls": {} });
@@ -44,7 +43,6 @@ ROOM_ID = 0;(function() {
     }
 
     Room.prototype = {
-        // these two methods reflect the fact that the door objects are immutable.
         // The door needs to be added to 2 rooms, but the relevant coordinates (door.r1x vs door.r2x)
         // don't change, so we need a clear way to specify if this is room 1 or 2 of the doors coordinates.
         //
@@ -82,12 +80,6 @@ ROOM_ID = 0;(function() {
             // TODO split this into multiple windows?
             this.windows.insert(x1, y1, {"x1": x1, "y1": y1, "x2": x2, "y2": y2});
         },
-        /*
-        "addWindow2": function(x1, y1, windowObj) {
-            var windowCopy = {"r1x": r2x, "r1y": r2y, "r2x": r1x, "r2y": r1y}; 
-            this.windows.insert(x1, y1, windowCopy);
-        },
-        */
         "render": function(ctx) {
             var self = this;
             function drawWall(wall) {
@@ -108,66 +100,6 @@ ROOM_ID = 0;(function() {
                     }
                 }
             });
-
-            ctx.lineWidth = 10;
-            ctx.strokeStyle = "blue";
-            this.doors.forEachMany(function(door) {
-                var x = 0, y = 0,
-                    doorWidth = .05 * self.roomSize;
-                if (door.x1 == door.x2) {
-                    x = (door.x1 + .5) * self.roomSize;
-                    if (door.y1 > door.y2) {
-                        y = door.y1 * self.roomSize;
-                        y += 10;
-                    } else {
-                        y = door.y2 * self.roomSize;
-                        y -= 10;
-                    }
-                } else {
-                    y = (door.y1 + .5) * self.roomSize;
-                    if (door.x1 > door.x2) {
-                        x = door.x1 * self.roomSize;
-                        x += 10;
-                    } else { 
-                        x = door.x2 * self.roomSize;
-                        x -= 10;
-                    }
-                }
-                ctx.beginPath();
-                ctx.rect(x, y, doorWidth, doorWidth);
-                ctx.stroke();
-                ctx.closePath();
-            });
-
-            ctx.lineWidth = 5;
-            ctx.strokeStyle  = "green";
-            this.windows.forEachMany(function(wind) {
-                var x = 0, y = 0,
-                    windWidth = .1 * self.roomSize;
-                if (wind.x1 == wind.x2) {
-                    x = (wind.x1 + .5) * self.roomSize;
-                    if (wind.y1 > wind.y2) {
-                        y = wind.y1 * self.roomSize;
-                        y += 10;
-                    } else {
-                        y = wind.y2 * self.roomSize;
-                        y -= 10;
-                    }
-                } else {
-                    y = (wind.y1 + .5) * self.roomSize;
-                    if (wind.x1 > wind.x2) {
-                        x = wind.x1 * self.roomSize;
-                        x += 10;
-                    } else {
-                        x = wind.x2 * self.roomSize;
-                        x -= 10;
-                    }
-                }
-                ctx.beginPath();
-                ctx.rect(x, y, windWidth, windWidth);
-                ctx.stroke();
-                ctx.closePath();
-            });
             ctx.font = "12px Georgia";
             ctx.fillStyle = "black";
             this.coords.forEach(function(coord) {
@@ -181,6 +113,14 @@ ROOM_ID = 0;(function() {
 
         //// once we integrate this into the main program the render
         //function will look something like this ...
+        //
+        // this should take the camera, and do any transformations it needs to do first?
+        // idea:
+        // game.render() {
+        //  room + neighbors.render()
+        //      for obj: obj.render
+        //  multiroomObjects.render();
+        // }
         "actualRender": function(camera) {
             camera.customRenderMany(this.walls, function(ctx, wall) {
                 ctx.beginPath();
