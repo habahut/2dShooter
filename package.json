@@ -5,5 +5,8 @@
         "toolbar": true,
         "width": 1000,
         "height": 650
+    },
+    "dependencies": {
+        "jquery": "^3.2.1"
     }
 }
