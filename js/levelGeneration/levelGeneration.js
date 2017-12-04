@@ -115,6 +115,8 @@ function roomWalk(mst, w, h) {
     var world = {};
     world.map = new IndexXY("single");
     //// should also be an indexXY
+
+    // this can broken out into a separate function for testing probably.
     world.doors = [];
     for (var i = 0;i < mst.length; i++) {
         var x1 = mst[i].origin.x,

@@ -1,0 +1,3 @@
+"compilerOptions": {
+    "outDir": "/compiled-js/"
+}

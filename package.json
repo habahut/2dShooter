@@ -7,6 +7,17 @@
         "height": 650
     },
     "dependencies": {
-        "jquery": "^3.2.1"
+        "@types/chai": "^4.0.7",
+        "chai": "^4.1.2",
+        "jquery": "^3.2.1",
+        "mocha": "^4.0.1",
+        "ts-node": "^3.3.0",
+        "typescript": "^2.6.2"
+    },
+    "scripts": {
+        "test": "mocha -r ts-node/register ts/**/*Test.ts"
+    },
+    "devDependencies": {
+        "@types/jasmine": "^2.8.2"
     }
 }
