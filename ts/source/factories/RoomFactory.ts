@@ -36,27 +36,19 @@ export class RoomFactory {
             // then we should add the wall.
             if (! pointMap.get(x + 1, y)) {
                 walls.push(this.wallFactory.buildWall(x + 1, y, Orientation.VERTICAL, WallType.STANDARD));
-                //coord.walls.e = {"x1": xP1 * roomSize, "y1": y * roomSize,
-                //"x2": xP1 * roomSize, "y2": yP1 * roomSize};
             }
             if (! pointMap.get(x - 1, y)) {
                 walls.push(this.wallFactory.buildWall(x, y, Orientation.VERTICAL, WallType.STANDARD));
-                    //coord.walls.w = {"x1": x * roomSize, "y1": y * roomSize,
-                    //"x2": x * roomSize, "y2": yP1 * roomSize};
             }
             if (! pointMap.get(x, y + 1)) {
                 walls.push(this.wallFactory.buildWall(x, y + 1, Orientation.HORIZONTAL, WallType.STANDARD));
-                    //coord.walls.s = {"x1": x * roomSize, "y1": yP1 * roomSize,
-                    //"x2": xP1 * roomSize, "y2": yP1 * roomSize};
             }
             if (! pointMap.get(x, y - 1)) {
                 walls.push(this.wallFactory.buildWall(x, y, Orientation.HORIZONTAL, WallType.STANDARD));
-                    //coord.walls.n = {"x1": x * roomSize, "y1": y * roomSize,
-                    //"x2": xP1 * roomSize, "y2": y * roomSize};
             }
         }
 
-        // just to get this to compile for now
-        return new RoomStandard(-1, -1, walls);
+        // this is wrong. A room doens't contain just 1 coordinate x and y. Need to refactor this.
+        return new RoomStandard(points, walls);
     }
 }

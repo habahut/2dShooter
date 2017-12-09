@@ -10,11 +10,15 @@ import {} from "jasmine";
 import { expect } from "chai";
 
 describe ("RoomFactory Tests", () => {
-    it("should build a room of type standard", () => {
+    it("should build a room object with the given point", () => {
         let points = [new Point(5, 5)],
             wallFactory = new WallFactory(100),
             roomFactory = new RoomFactory(100, wallFactory),
             room = roomFactory.buildRoom(points, RoomType.STANDARD);
+        let point = room.getPointMap().get(5, 5);
+        expect(point.x).to.equal(5);
+        expect(point.y).to.equal(5);
+        expect(room.getPointMap().getPoints().length).to.equal(1);
     }),
     it("1 point room has all walls", () => {
         let points = [new Point(5, 5)],
@@ -24,6 +28,54 @@ describe ("RoomFactory Tests", () => {
                             wallFactory.buildWall(5, 5, Orientation.HORIZONTAL, WallType.STANDARD),
                             wallFactory.buildWall(6, 5, Orientation.VERTICAL, WallType.STANDARD),
                             wallFactory.buildWall(5, 6, Orientation.HORIZONTAL, WallType.STANDARD)],
+            room = roomFactory.buildRoom(points, RoomType.STANDARD);
+        verifyWalls(room.getWalls(), expectedWalls);
+    }),
+    it("Should generate the correct walls for complex wall shape", () => {
+        let points = [new Point(5, 5),
+                     new Point(5, 6),
+                     new Point(6, 6),
+                     new Point(6, 6),
+                     new Point(7, 5)],
+            wallFactory = new WallFactory(100),
+            roomFactory = new RoomFactory(100, wallFactory),
+            expectedWalls = [wallFactory.buildWall(5, 5, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(5, 5, Orientation.HORIZONTAL, WallType.STANDARD),
+                            wallFactory.buildWall(6, 5, Orientation.VERTICAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(5, 6, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(5, 7, Orientation.HORIZONTAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(6, 6, Orientation.HORIZONTAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(6, 7, Orientation.HORIZONTAL, WallType.STANDARD),
+                            wallFactory.buildWall(6, 8, Orientation.HORIZONTAL, WallType.STANDARD),
+                            wallFactory.buildWall(7, 7, Orientation.VERTICAL, WallType.STANDARD),
+                
+                            wallFactory.buildWall(7, 5, Orientation.HORIZONTAL, WallType.STANDARD),
+                            wallFactory.buildWall(8, 5, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(7, 7, Orientation.HORIZONTAL, WallType.STANDARD)],
+            room = roomFactory.buildRoom(points, RoomType.STANDARD);
+        verifyWalls(room.getWalls(), expectedWalls);
+    }),
+    it("Should create the walls for a square room", () => {
+        let points = [new Point(5, 5),
+                     new Point(5, 6),
+                     new Point(6, 5),
+                     new Point(6, 6)],
+            wallFactory = new WallFactory(100),
+            roomFactory = new RoomFactory(100, wallFactory),
+            expectedWalls = [wallFactory.buildWall(5, 5, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(5, 5, Orientation.HORIZONTAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(5, 6, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(5, 7, Orientation.HORIZONTAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(6, 5, Orientation.HORIZONTAL, WallType.STANDARD),
+                            wallFactory.buildWall(7, 5, Orientation.VERTICAL, WallType.STANDARD),
+
+                            wallFactory.buildWall(7, 6, Orientation.VERTICAL, WallType.STANDARD),
+                            wallFactory.buildWall(6, 7, Orientation.HORIZONTAL, WallType.STANDARD)],
             room = roomFactory.buildRoom(points, RoomType.STANDARD);
         verifyWalls(room.getWalls(), expectedWalls);
     });

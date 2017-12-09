@@ -1,6 +1,9 @@
 import { DoorType } from '../enums/DoorType';
 import { DoorState } from "../enums/DoorState";
 import { DoorStandard } from "../impl/DoorStandard";
+import { Room } from "../interfaces/Room";
+import { XYMap } from "../util/XYMap";
+import { Point } from "../util/Point";
 
 
 export class DoorFactory {
@@ -19,6 +22,34 @@ export class DoorFactory {
         }
     }
 
+    // Returns the points between the two rooms in an 2d Array: 
+    // [ [pointInRoom1, pointInRoom2], [pointInRoom1, pointInRoom2], etc... ]
+    // An empty array indicates there are no shared walls.
+    //
+    // Left as points instead of walls assuming this may be refactored to something more generic
+    calculateEdgesBetweenRooms(room1: Room, room2: Room) : Array<Array<Point>> {
+        let pointMap1: XYMap = room1.getPointMap(),
+            pointMap2: XYMap = room2.getPointMap(),
+            connections: Array<Array<Point>> = [];
+        for (let point of pointMap1.getPoints()) {
+            if (pointMap2.get(point.x + 1, point.y)) {
+                connections.push([point, pointMap2.get(point.x + 1, point.y)]);
+            }
+            if (pointMap2.get(point.x - 1, point.y)) {
+                connections.push([point, pointMap2.get(point.x - 1, point.y)]);
+            }
+            if (pointMap2.get(point.x, point.y + 1)) {
+                connections.push([point, pointMap2.get(point.x, point.y + 1)]);
+            }
+            if (pointMap2.get(point.x, point.y - 1)) {
+                connections.push([point, pointMap2.get(point.x, point.y - 1)]);
+            }
+        }
+
+        return connections;
+    }
+
+// this should just take 2 Rooms
     buildStandardDoor(r1x: number, r1y: number, r2x: number, r2y: number) {
         // this might be the wrong range with this function that actually works.
         let doorLength = 1 - Math.random() * (DoorFactory.MAX_STANDARD_DOOR_SIZE - DoorFactory.MIN_STANDARD_DOOR_SIZE)
