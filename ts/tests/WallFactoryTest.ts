@@ -6,7 +6,7 @@ import { Orientation } from "../source/enums/Orientation";
 import { WallType } from "../source/enums/WallType";
 import { Wall } from "../source/interfaces/Wall"
 
-describe ("XYMaps Tests", () => {
+describe ("WallFactory Tests", () => {
     it("should create a vertical wall", () => {
         let wallFactory = new WallFactory(100),
             wall: Wall = wallFactory.buildWall(1,1, Orientation.VERTICAL, WallType.STANDARD);

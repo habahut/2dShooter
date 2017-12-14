@@ -15,9 +15,7 @@ describe ("RoomFactory Tests", () => {
             wallFactory = new WallFactory(100),
             roomFactory = new RoomFactory(100, wallFactory),
             room = roomFactory.buildRoom(points, RoomType.STANDARD);
-        let point = room.getPointMap().get(5, 5);
-        expect(point.x).to.equal(5);
-        expect(point.y).to.equal(5);
+        expect(room.getPointMap().get(5, 5).equals(points[0])).to.equal(true);
         expect(room.getPointMap().getPoints().length).to.equal(1);
     }),
     it("1 point room has all walls", () => {
@@ -81,6 +79,7 @@ describe ("RoomFactory Tests", () => {
     });
 });
 
+// confirms that all walls in "walls" are present in "expectedWalls"
 function verifyWalls(walls: Array<Wall>, expectedWalls: Array<Wall>) {
     let found = false;
     for (let wall of walls) {

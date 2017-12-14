@@ -15,7 +15,8 @@
         "typescript": "^2.6.2"
     },
     "scripts": {
-        "test": "mocha -r ts-node/register ts/**/*Test.ts"
+        "test": "mocha -r ts-node/register ts/**/*Test.ts",
+        "single-test": "./single-unit-test.sh"
     },
     "devDependencies": {
         "@types/jasmine": "^2.8.2"

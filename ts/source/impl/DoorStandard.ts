@@ -1,20 +1,33 @@
 import { DoorState } from '../enums/DoorState';
+import { Door } from "../interfaces/Door";
 import { RenderableDebug } from '../interfaces/RenderableDebug';
 import { Renderable } from '../interfaces/Renderable';
+import { Orientation } from '../enums/Orientation';
 
-export class DoorStandard implements Renderable, RenderableDebug {
+export class DoorStandard implements Door, Renderable, RenderableDebug {
+    x: number;
+    y: number;
+
     room1x: number;
     room1y: number;
     room2x: number;
     room2y: number;
-    doorState: DoorState;
 
-    constructor(room1x: number, room1y: number, room2x: number, room2y: number, length: number, doorState: DoorState) {
+    length: number;
+    doorState: DoorState;
+    orientation: Orientation;
+
+    constructor(x: number, y: number, room1x: number, room1y: number, room2x: number,
+            room2y: number, length: number, doorState: DoorState, orientation: Orientation) {
+        this.x = x;
+        this.y = y;
         this.room1x = room1x;
         this.room1y = room1y;
         this.room2x = room2x;
         this.room2y = room2y;
+        this.length = length;
         this.doorState = doorState;
+        this.orientation = orientation;
     }
 
     render() {

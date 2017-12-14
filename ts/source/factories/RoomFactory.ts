@@ -48,7 +48,6 @@ export class RoomFactory {
             }
         }
 
-        // this is wrong. A room doens't contain just 1 coordinate x and y. Need to refactor this.
         return new RoomStandard(points, walls);
     }
 }
