@@ -8,7 +8,7 @@ export class RoomScaledObjectFactoryFactory {
     }
     buildRoomFactory() {
     }
-    buildDoorFactory() {
+    buildWallObjectFactory() {
     }
 }
 

@@ -1,12 +1,12 @@
 import { Room } from '../interfaces/Room';
 import { RoomFactory } from '../factories/RoomFactory';
-import { DoorFactory } from '../factories/DoorFactory';
+import { WallObjectFactory } from '../factories/WallObjectFactory';
 
 
 export class LevelGenerator {
 	room: Room;
 	roomFactory: RoomFactory;
-	door: DoorFactory;
+	door: WallObjectFactory;
 	// maybe not necessary
 	//wallFactory: WallFactory;
 }
