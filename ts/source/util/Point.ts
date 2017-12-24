@@ -16,4 +16,11 @@ export class Point {
     equals(other: Point) {
         return (this.x == other.x && this.y == other.y);
     }
+    toString() {
+        return this.x.toString() + "," + this.y.toString();
+    }
+    // TOOD: needs unit test
+    equalsCoords(p2: Point) {
+        return (this.x == p2.x && this.y == p2.y);
+    }
 }

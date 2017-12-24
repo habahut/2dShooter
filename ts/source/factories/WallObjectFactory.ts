@@ -41,6 +41,7 @@ export class WallObjectFactory {
             throw Error("r1x == r2x && r1y == r2y!");
         }
         if (length === undefined) { 
+            // TODO: refactor to util method
             length = Math.random() 
                 * (WallObjectFactory.MAX_STANDARD_DOOR_SIZE - WallObjectFactory.MIN_STANDARD_DOOR_SIZE)
                 + WallObjectFactory.MIN_STANDARD_DOOR_SIZE;

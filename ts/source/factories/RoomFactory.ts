@@ -11,6 +11,7 @@ import { RoomStandard } from "../impl/RoomStandard";
 export class RoomFactory {
     private roomTileSize: number;
     private wallFactory: WallFactory;
+
     constructor(roomTileSize: number, wallFactory: WallFactory) {
         this.roomTileSize = roomTileSize;
         this.wallFactory = wallFactory;

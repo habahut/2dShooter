@@ -48,5 +48,5 @@ describe ("XYMaps Tests", () => {
             xyMap = new XYMap(points);
         expect(xyMap.get(1, 1).value.equals(new Point(10, 10))).to.equal(true);
     });
- 
+    // TODO: right immutability test for XYMap
 });
