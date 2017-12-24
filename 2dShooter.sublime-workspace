@@ -7,6 +7,28 @@
 	},
 	"buffers":
 	[
+		{
+			"contents": "import { RoomFactory } from \"./RoomFactory\";\nimport { WallFactory } from \"./WallFactory\";\nimport { WallObjectFactory } from \"./WallObjectFactory\";\n\n// This Factory builds other factories that build objects scaled by room size\n// i.e. Room, Door etc.\n//\n// Should be renamed \"RoomScaledFactoryFactory\"\nexport class RoomScaledObjectFactoryFactory {\n    roomTileSize: number;\n\t\n    constructor(roomTileSize: number) {\n        this.roomTileSize = roomTileSize;\n    }\n\n    buildRoomFactory() {\n        return new RoomFactory(this.roomTileSize);\n    }\n\n    buildWallFactory() {\n        return new WallFactory(this.roomTileSize);\n    }\n\n    buildWallObjectFactory() {\n        return new WallObjectFactory(this.roomTileSize);\n    }\n\n    getRoomTileSize() {\n        return this.roomTileSize;\n    }\n}\n\n",
+			"file": "ts/source/factories/RoomScaledObjectFactoryFactory.ts",
+			"file_size": 792,
+			"file_write_time": 131583071450168183,
+			"settings":
+			{
+				"buffer_size": 792,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "References to class RoomScaledObjectFactoryFactory \n\nC:/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts:\n    9:  export class RoomScaledObjectFactoryFactory {\n\n1 matches in 1 file\n",
+			"settings":
+			{
+				"buffer_size": 235,
+				"line_ending": "Windows",
+				"name": "Find References",
+				"read_only": true,
+				"scratch": true
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -15,8 +37,8 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 170.0,
-		"last_filter": "remove",
+		"height": 38.0,
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -54,12 +76,38 @@
 	"expanded_folders":
 	[
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/compiled-js",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums"
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/levelGeneration",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/util",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests"
 	],
 	"file_history":
 	[
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl/DoorStandard.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/DoorFactoryTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/levelGeneration/LevelGenerator.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/DoorFactory.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl/RoomStandard.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces/Room.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/RoomFactoryTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomFactory.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl/WallStandard.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/WallFactoryTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/util/XYMap.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/WallFactory.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces/Wall.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/compiled-js/source/util/XYMap.js",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums/Orientation.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums/WallOrientation.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/XYMapsTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces/Door.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/interfaces/Room.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/interfaces/Renderable.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/DoorFactory.ts",
@@ -75,7 +123,7 @@
 	],
 	"find":
 	{
-		"height": 0.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -89,6 +137,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"r"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -106,14 +155,90 @@
 	"groups":
 	[
 		{
+			"selected": 1,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "ts/source/factories/RoomScaledObjectFactoryFactory.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 792,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								327,
+								327
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"use_tab_stops": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 235,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								53,
+								53
+							]
+						],
+						"settings":
+						{
+							"refinfo":
+							[
+								{
+									"3":
+									[
+										"C:/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts",
+										8,
+										13,
+										null,
+										null
+									]
+								},
+								null,
+								"3",
+								"3",
+								"RoomScaledObjectFactoryFactory"
+							],
+							"syntax": "Packages/TypeScript/FindRefs.hidden-tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
 	"incremental_find":
 	{
-		"height": 0.0
+		"height": 23.0
 	},
 	"input":
 	{
@@ -154,7 +279,7 @@
 	"project": "2dShooter.sublime-project",
 	"replace":
 	{
-		"height": 0.0
+		"height": 42.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -163,6 +288,30 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"roomfactorytest.ts",
+				"ts\\tests\\RoomFactoryTest.ts"
+			],
+			[
+				"xymap.ts",
+				"ts\\source\\util\\XYMap.ts"
+			],
+			[
+				"xymap",
+				"compiled-js\\source\\util\\XYMap.js"
+			],
+			[
+				"wallfactorytest.ts",
+				"ts\\tests\\WallFactoryTest.ts"
+			],
+			[
+				"roomstandard.ts",
+				"ts\\source\\impl\\RoomStandard.ts"
+			],
+			[
+				"doorstandard.ts",
+				"ts\\source\\impl\\DoorStandard.ts"
+			]
 		],
 		"width": 0.0
 	},

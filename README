@@ -1,1 +1,4 @@
-bower install
+## Note that this should be run on the compiled JS
+# go to chrome://inspect to start debugging
+mocha --inspect-brk <file name.js>
+

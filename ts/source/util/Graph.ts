@@ -137,7 +137,8 @@ export  class Edge {
     }
 
     equals(e: Edge) {
-        return this.p1.equalsCoords(e.p1) && this.p2.equalsCoords(e.p2) && this.length == e.length;
+        return (this.p1.equalsCoords(e.p1) && this.p2.equalsCoords(e.p2) && this.length == e.length
+            || this.p1.equalsCoords(e.p2) && this.p2.equalsCoords(e.p1) && this.length == e.length);
     }
 }
 
