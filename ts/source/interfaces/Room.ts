@@ -11,7 +11,10 @@ export interface Room {
     // scaling of all rooms
     roomTileSize: number;
 
+    id: string;
+
     doors: Array<Door>;
     getWalls(): Array<Wall>
     getPointMap(): XYMap;
+    equals(room: Room): boolean;
 }

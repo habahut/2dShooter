@@ -12,6 +12,7 @@ export class XYMap {
 
     // what should happen if there are multiple points in the Array<Point> with the same x and y?
     constructor(points?: Array<Point>) {
+        this.pointMap = {};
         // Can create an XYMap with an already predefined set of points. If so,
         // the map is immutable. Can otherwise build up the map and set immutability once
         // finished building.
@@ -27,7 +28,6 @@ export class XYMap {
         }
         this.empty = false;
         this.points = points;
-        this.pointMap = {};
         for (let point of points) {
             // determine what we will set at this point. If the point has the optional value
             // set than use that, otherwise default to true.
@@ -58,6 +58,7 @@ export class XYMap {
         if (this.immutable) {
             throw "Trying to modify immutable map!";
         }
+        this.empty = false;
 
         if (this.pointMap[point.x] === undefined) {
             let temp : any = {};
