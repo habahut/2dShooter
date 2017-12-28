@@ -13,4 +13,8 @@ export interface Door {
     length: number;
     doorState: DoorState;
     orientation: Orientation;
+
+    // TODO: this should be part of an "equals" interface
+    // assumption: no shared wall will have multiple doors
+    equals(other: Door) : boolean;
 }

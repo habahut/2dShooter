@@ -35,4 +35,13 @@ export class DoorStandard implements Door, Renderable, RenderableDebug {
 
     renderDebug() {
     }
+
+    equals(other: Door) : boolean {
+        // check that this door matches in either direction
+        return (this.room1x == other.room1x && this.room1y == other.room1y 
+                    && this.room2x == other.room2x && this.room2y == other.room2y)
+                ||
+               (this.room1x == other.room2x && this.room1y == other.room2y 
+                    && this.room2x == other.room1x && this.room2y == other.room1y);
+    }
 }

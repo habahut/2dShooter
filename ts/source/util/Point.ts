@@ -20,6 +20,7 @@ export class Point {
         return this.x.toString() + "," + this.y.toString();
     }
     // TOOD: needs unit test
+    // this should be an interface that all these things implement probably.
     equalsCoords(p2: Point) {
         return (this.x == p2.x && this.y == p2.y);
     }

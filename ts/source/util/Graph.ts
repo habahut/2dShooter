@@ -44,10 +44,8 @@ function  calculateDistance(p1: Point, p2: Point) {
     return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 }
 
-// this should be just visible for testing
-// other classes shouldn't be able to get access to this thing, these accessor methods
-// should be on the graph itself.
 export class EdgeCollection {
+    // should iterate over sortedEdges, not edges. Perhaps edges should be private?
     edges: any;
     sortedEdges: Array<Edge>;
 
@@ -63,7 +61,6 @@ export class EdgeCollection {
         let edge = new Edge(p1, p2, length);
         if (this.edges[this.pointsToString(p1, p2)] == undefined
                 && this.edges[this.pointsToString(p2, p1)] == undefined) {
-            // We want this edge to be recognized in either order
             this.edges[this.pointsToString(p1, p2)] = edge;
             this.insertSortedEdge(edge);
         } else {
@@ -89,9 +86,9 @@ export class EdgeCollection {
                 inserted = true;
                 break;
             }
-            // this is the largest edge, so just append it to the end of the list.
         }
 
+        // this is the largest edge, so just append it to the end of the list.
         if (! inserted) this.sortedEdges.push(edge);
     }
 

@@ -3,3 +3,4 @@ export class Random {
         return Math.random() * (max - min) + min
     }
 }
+
