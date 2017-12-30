@@ -101,7 +101,6 @@ export class LevelGenerator {
 
     }
 
-
     /**
      * Given a collection of edges, this method turns the edges into a series of points,
      * which can later be turned into rooms. It ensures that there is a contiguous

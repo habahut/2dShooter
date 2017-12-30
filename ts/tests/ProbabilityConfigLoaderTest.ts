@@ -1,12 +1,13 @@
-import { ProbabilityNegotiator } from "../source/config/ProbabilityNegotiator";
+import { ProbabilityConfigLoader } from "../source/config/ProbabilityConfigLoader";
 
 import {} from "jasmine";
 import { expect } from "chai";
 
-describe ("Probability Negotiator tests", () => {
+describe ("Probability Config Reader tests", () => {
     it("given the test config file, it generates the correct configuration for RoomConnectionBehavior", () => {
-        let probabilityNegotiator: ProbabilityNegotiator = new ProbabilityNegotiator(),
-            config = probabilityNegotiator.loadConfig("TESTS/testRoomConnectionBehavior");
+        let probabilityConfigLoader: ProbabilityConfigLoader= new ProbabilityConfigLoader(
+                    "../../config/TESTS/testRoomConnctionBehavior.json"),
+            config = probabilityConfigLoader.probabilityMix;
 
         expect(config["EVEN_MIX"]["NONE"].min).to.equal(0);
         expect(config["EVEN_MIX"]["HALLWAYS"].max).to.equal(40);

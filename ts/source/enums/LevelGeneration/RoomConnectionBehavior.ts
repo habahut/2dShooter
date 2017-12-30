@@ -1,3 +1,5 @@
+import { ProbabilityBehaviorDeterminator } from "../../config/ProbabilityBehaviorDeterminator";
+
 /**
  * This enum determines the preferred behavior of the LevelGenerator when dealing with the
  * pathways connecting the largest rooms.
@@ -30,6 +32,24 @@ export enum RoomConnectionBehavior {
     BLOB_MIX,
     LARGE_BLOB_MIX
 }
+
+// this thing should HAVE a probabilityNegotiator, and be some new interface type
+// which can be used by all similar behavioral enums.
+export class RoomConnectionBehaviorDeterminator implements ProbabilityBehaviorDeterminator {
+
+/*
+    probabilityConfigLoader: ProbabilityNegotiator;
+    let configs = ["RoomConnectionBehavior"];
+    configFilePath: string = "../../../config/";
+    */
+
+    probabilityToBehavior(enumValue: string, probability: number): any {
+        return "";
+    }
+
+
+}
+
 
 /*
 export class ProbabilityNegotiator() {
