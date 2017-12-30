@@ -3,6 +3,7 @@ import { RoomScaledFactoryFactory } from "../factories/RoomScaledFactoryFactory"
 import { Room } from '../interfaces/Room';
 import { Door } from '../interfaces/Door';
 import { DoorType } from '../enums/DoorType';
+import { RoomType } from '../enums/RoomType';
 import { RoomFactory } from '../factories/RoomFactory';
 import { WallObjectFactory } from '../factories/WallObjectFactory';
 import { WallFactory } from "../factories/WallFactory";
@@ -49,9 +50,55 @@ export class LevelGenerator {
     generateLevel(height: number, width: number, numSeeds: number) : World {
         let seeds: Array<Point> = this.createSeededMap(height, width, numSeeds),
             minimumSpanningTree: Graph = MinimumSpanningTreeBuilder.build(seeds),
+            temp = this.pointWalk(minimumSpanningTree.edgeCollection),
+
+            // here we should expand some percentage of the seed rooms before
+            // we do anything else to ensure we have at least a baseline of interesting spaces
+            // in the level.
+
+            // we also should store an Array<Room> that contains all the rooms we've expanded
+            // so that we can add features to them.
+            // We probably need a "interesting-a-fy" method for our rooms.
+
+            // going to need Enums for every type of behavior: weapon types, utility items like health packs, enemy difficulty etc..
+
+            //points: Array<Point> = temp["points"],
             world = new World(this.roomTileSize);
+        //this.doors = temp["doors"];
+        //this.doorMap = temp["doorMap"];
+
+
 
         return world;
+    }
+
+    /**
+     * Takes an array of points representing the randomly generated paths in the level
+     * and converts them to rooms, randomly expanding some rooms. Handles building the doors between
+     * these expanded rooms.
+     */
+    expandAndBuildRooms(points: Array<Point>, expandPercent: number) : Array<Room> {
+        let roomMap: XYMap = new XYMap();
+        for (let point of points) {
+            let room: Room = this.roomFactory.buildRoom([point], RoomType.STANDARD);
+            
+            if (this.mersenneTwister.genrand_real3() >= expandPercent) {
+                
+            }
+
+        }
+        return [];
+
+
+
+        // we need to accept some set of room features we can select from randomly.
+        // then we need some way to negotiate them into the map.
+
+        // we should allow the levelGenerator to take some behavioral parameters, to favor different
+        // types of room configurations. Merging many continuous single rooms into a long hallway,
+        // versus expanding them outwards, versus leaving them alone
+
+
     }
 
 
@@ -128,8 +175,8 @@ export class LevelGenerator {
             points: Array<Point> = [],
             locs: number = 0;
         while(locs < numSeeds) {
-            let x = Random.getInt(0, width),
-                y = Random.getInt(0, height);
+            let x = this.mersenneTwister.genrand_range(0, width),
+                y = this.mersenneTwister.genrand_range(0, height);
             if (xyMap.get(x, y) == undefined) {
                 let point: Point = new Point(x, y, locs);
                 xyMap.set(x, y, point);
