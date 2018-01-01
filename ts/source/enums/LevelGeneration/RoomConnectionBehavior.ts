@@ -1,4 +1,5 @@
 import { ProbabilityBehaviorDeterminator } from "../../config/ProbabilityBehaviorDeterminator";
+import { ProbabilityConfigHandler } from "../../config/ProbabilityConfigHandler";
 
 /**
  * This enum determines the preferred behavior of the LevelGenerator when dealing with the
@@ -13,6 +14,9 @@ export enum RoomConnectionBehavior {
     // The level generator will bias towards narrow hallways connecting expanded rooms.
     // this will generate a fairly sparse level, with only the original expanded rooms connected by
     // narrow hallways.
+
+    // TODO: should have a hallway variant for zig zagging or straight lines, or combining the two
+
     HALLWAYS,
     // Same as above, but the generator will attempt to build wider hallways.
     WIDE_HALLWAYS,
@@ -37,17 +41,21 @@ export enum RoomConnectionBehavior {
 // which can be used by all similar behavioral enums.
 export class RoomConnectionBehaviorDeterminator implements ProbabilityBehaviorDeterminator {
 
-/*
-    probabilityConfigLoader: ProbabilityNegotiator;
-    let configs = ["RoomConnectionBehavior"];
-    configFilePath: string = "../../../config/";
-    */
+    probabilityConfigHandler: ProbabilityConfigHandler;
 
-    probabilityToBehavior(enumValue: string, probability: number): any {
-        return "";
+    constructor(configFilePath: string = "") {
+        if (configFilePath == "") {
+            configFilePath = "../../../config/RoomConnectionBehavior.json";
+        }
+        this.probabilityConfigHandler = new ProbabilityConfigHandler(configFilePath);
     }
 
-
+    probabilityToBehavior(mixName: string, probability: number): any {
+        // this somewhat torturous typing and casting is required by typescript
+        let name: keyof typeof RoomConnectionBehavior = <keyof typeof RoomConnectionBehavior> 
+            this.probabilityConfigHandler.probabilityAndMixToValue(mixName, probability);
+        return RoomConnectionBehavior[name];
+    }
 }
 
 

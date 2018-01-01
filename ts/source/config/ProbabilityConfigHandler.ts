@@ -1,6 +1,4 @@
-//import { require } from "@types/requirejs";
-
-export class ProbabilityConfigLoader {
+export class ProbabilityConfigHandler {
 
     probabilityMix: any;
 
@@ -26,7 +24,30 @@ export class ProbabilityConfigLoader {
 
     /// I'm actually not sure if i need to explicitly import all the potential enums, that would
     // be annoying. I think I might be able to just load them up with reflection, but i'm not sure.
-    probabilityToValue(enumName: string, enumValue: string, probability: number) : any {
+
+
+    // this thing should just return the string of the determined behavior. Let the caller figure out
+    // how to create an instance of the right enum.
+    probabilityAndMixToValue(mixName: string, probability: number) : string {
+        // determine if this is a mix value we've been passed. If not, just return the same choice.
+        if (this.probabilityMix[mixName] == undefined) {
+            return mixName;
+        }
+
+        debugger;
+
+        let thisMix = this.probabilityMix[mixName];
+        for (let name in thisMix) {
+            let range = thisMix[name];
+            if (range.min < probability && probability < range.max) {
+                return name;
+            }
+        }
+
+        throw "Could not find an enum value for " + mixName + " for probability: " + probability + " " + JSON.stringify(this.probabilityMix);
+    }
+
+
         // use probabilityCache to determine and return enum value
         // if the enumString is not present in the probability cache of the enumName, then just
         // return it.
@@ -48,6 +69,5 @@ export class ProbabilityConfigLoader {
         /// console.log(Object.create(enumName)[Enum.value])
         //for (let mix
         */
-        return "";
-    }
+    //return "";
 }

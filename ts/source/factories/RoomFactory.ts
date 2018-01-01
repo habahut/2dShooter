@@ -7,6 +7,7 @@ import { WallType } from "../enums/WallType";
 import { WallFactory } from "./WallFactory";
 import { Room } from "../interfaces/Room";
 import { RoomStandard } from "../impl/RoomStandard";
+import { Random } from "../util/Random";
 
 export class RoomFactory {
     private roomTileSize: number;
@@ -49,6 +50,6 @@ export class RoomFactory {
             }
         }
 
-        return new RoomStandard(points, walls);
+        return new RoomStandard(points, walls, Random.uuid());
     }
 }

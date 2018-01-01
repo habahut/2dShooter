@@ -7,11 +7,15 @@ import { XYMap } from "../util/XYMap";
 export interface Room {
     // X and Y on the row grid, not absolute coordinates on the map
     pointMap: XYMap;
+    id: string;
 
     // scaling of all rooms
     roomTileSize: number;
 
     doors: Array<Door>;
     getWalls(): Array<Wall>
+
+
     getPointMap(): XYMap;
+    equals(other: Room): boolean;
 }

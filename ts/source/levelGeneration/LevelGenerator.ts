@@ -15,6 +15,7 @@ import { Graph } from "../util/Graph";
 import { MinimumSpanningTreeBuilder } from "../util/MinimumSpanningTreeBuilder";
 import { MersenneTwister } from "../util/MersenneTwister";
 
+/// we should have different "level generators", need this behind an interface
 export class LevelGenerator {
     roomFactory: RoomFactory;
     wallFactory: WallFactory;
@@ -50,6 +51,11 @@ export class LevelGenerator {
     generateLevel(height: number, width: number, numSeeds: number) : World {
         let seeds: Array<Point> = this.createSeededMap(height, width, numSeeds),
             minimumSpanningTree: Graph = MinimumSpanningTreeBuilder.build(seeds),
+
+
+            // this will no longer be called. Instead we will be calling one of the various PathGenerators
+            // the path generators wont care about keeping paths within the height and width
+            // of the level, so it will be up to the level generator to prune points off the map.
             temp = this.pointWalk(minimumSpanningTree.edgeCollection),
 
             // here we should expand some percentage of the seed rooms before
@@ -77,6 +83,9 @@ export class LevelGenerator {
      * and converts them to rooms, randomly expanding some rooms. Handles building the doors between
      * these expanded rooms.
      */
+
+
+    //// this hsould go in order growing each room one at a time so adjacent rooms don't eat each other.
     expandAndBuildRooms(points: Array<Point>, expandPercent: number) : Array<Room> {
         let roomMap: XYMap = new XYMap();
         for (let point of points) {
@@ -114,6 +123,13 @@ export class LevelGenerator {
      * Returns an object like this: {"points": Array<Point>, "doors": Array<Door>, "doorMap": XYMap}
      */
     pointWalk(edgeCollection: EdgeCollection) : any {
+
+        //// TODO:
+        //// currently this does all edges. So we will need to pull the foor loop out to a higher method that 
+        //calls one of the respective generators
+
+
+
         let points: Array<Point> = [],
             // to prevent duplicates
             pointMap: XYMap = new XYMap(),

@@ -127,6 +127,7 @@ export  class Edge {
     p2: Point;
     length: number;
 
+    // TODO: this is stupid, it shouldn't take the length as a parameter
     constructor(p1: Point, p2: Point, length: number) {
         this.p1 = p1;
         this.p2 = p2;

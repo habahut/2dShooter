@@ -2,3 +2,5 @@
 # go to chrome://inspect to start debugging
 mocha --inspect-brk <file name.js>
 
+npm run single-test <test file.ts>
+

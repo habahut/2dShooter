@@ -16,7 +16,7 @@
         "typescript": "^2.6.2"
     },
     "scripts": {
-        "test": "mocha -r ts-node/register ts/**/*Test.ts",
+        "test": "find ./ts -name '*Test.ts' | xargs mocha -r ts-node/register",
         "single-test": "./single-unit-test.sh"
     },
     "devDependencies": {

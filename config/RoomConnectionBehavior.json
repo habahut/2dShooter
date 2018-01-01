@@ -27,7 +27,7 @@
         "BLOBS": 50,
         "LARGE_BLOBS": 20
     },
-    "BLOB_MIX": {
+    "LARGE_BLOB_MIX": {
         "NONE": 10,
         "HALLWAYS": 10,
         "WIDE_HALLWAYS": 10,
