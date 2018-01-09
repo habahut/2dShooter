@@ -202,10 +202,16 @@ export class MersenneTwister {
   }
 
   /* These real versions are due to Isaku Wada, 2002/01/09 added */
+    // TOOD: ideally I would 
 
   // added for this game.
   genrand_range(min: number, max: number) {
     var a = this.genrand_real3();
     return Math.floor(a * (max - min) + min);
+  }
+
+  genrand_rangeDecimal(min: number, max: number) {
+    var a = this.genrand_real3();
+    return a * (max - min) + min;
   }
 }

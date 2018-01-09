@@ -46,6 +46,7 @@ function  calculateDistance(p1: Point, p2: Point) {
 
 export class EdgeCollection {
     // should iterate over sortedEdges, not edges. Perhaps edges should be private?
+    // TODO, why is this an "any" instead of some object?
     edges: any;
     sortedEdges: Array<Edge>;
 

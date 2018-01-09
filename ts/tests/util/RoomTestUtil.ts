@@ -6,12 +6,7 @@ export class RoomTestUtil {
             return false;
         }
 
-        for (let point of room1.pointMap.getPoints()) {
-            if (room2.pointMap.get(point.x, point.y) == undefined) {
-                return false;
-            }
-        }
-
+        let pointsFound = RoomTestUtil.verifyRoomContains(room1, room2);
         /*
          *Doors not done yet, see note in RoomStandard
          *
@@ -30,6 +25,16 @@ export class RoomTestUtil {
             if (!found) return false;
         }
         */
+
+        return true && pointsFound;
+    }
+
+    static verifyRoomContains(room: Room, expectedRoom: Room) {
+        for (let point of room.pointMap.getPoints()) {
+            if (expectedRoom.pointMap.get(point.x, point.y) == undefined) {
+                return false;
+            }
+        }
 
         return true;
     }

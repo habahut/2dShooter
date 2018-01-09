@@ -56,6 +56,8 @@ export class XYMap {
 
     set(x: number, y: number, value: any = undefined) : void {
         if (this.immutable) {
+            let err = new Error();
+            console.trace();
             throw "Trying to modify immutable map!";
         }
 

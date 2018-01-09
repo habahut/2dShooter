@@ -53,3 +53,4 @@ export class RoomFactory {
         return new RoomStandard(points, walls, Random.uuid());
     }
 }
+

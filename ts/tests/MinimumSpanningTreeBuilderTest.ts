@@ -39,13 +39,14 @@ describe ("MinimumSpanningTreeBuilder Tests", () => {
             p8: Point = new Point(4, 7),
             mst: Graph = MinimumSpanningTreeBuilder.build([p1, p2, p3, p4, p5, p6, p7, p8]),
             expectedEdgeCollection: EdgeCollection = new EdgeCollection();
-        expectedEdgeCollection.addEdge(p1, p2, 1);
+        expectedEdgeCollection.addEdge(p1, p2, 1.4142135623730951);
         expectedEdgeCollection.addEdge(p2, p3, 2);
-        expectedEdgeCollection.addEdge(p3, p4, 5);
-        expectedEdgeCollection.addEdge(p4, p5, 5);
+        expectedEdgeCollection.addEdge(p2, p4, 4.123105625617661);
+        expectedEdgeCollection.addEdge(p4, p6, 1);
         expectedEdgeCollection.addEdge(p5, p6, 3);
         expectedEdgeCollection.addEdge(p5, p7, 1);
         expectedEdgeCollection.addEdge(p7, p8, 1);
+        debugger;
         expect(validateEdges(mst.edgeCollection, expectedEdgeCollection)).to.equal(true);
     });
 });
@@ -53,9 +54,9 @@ describe ("MinimumSpanningTreeBuilder Tests", () => {
 function validateEdges(edgeCollection: EdgeCollection, expectedEdgeCollection: EdgeCollection) {
     if (edgeCollection.size() != expectedEdgeCollection.size()) return false;
 
-    for (let edge of edgeCollection.edges) {
+    for (let edge of edgeCollection.sortedEdges) {
         let found = false;
-        for (let expectedEdge of expectedEdgeCollection.edges) {
+        for (let expectedEdge of expectedEdgeCollection.sortedEdges) {
             if (edge.equals(expectedEdge)) {
                 found = true;
                 break;
