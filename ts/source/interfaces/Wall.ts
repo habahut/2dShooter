@@ -1,8 +1,10 @@
 import { WindowObj } from "./WindowObj";
 import { Door } from "./Door";
 import { Orientation } from "../enums/Orientation";
+import { Renderable } from "./Renderable";
+import { RenderableMinimap } from "./RenderableMinimap";
 
-export interface Wall {
+export interface Wall extends Renderable, RenderableMinimap {
     // Grid coordinate numbers
     x1: number;
     y1: number;
@@ -19,4 +21,7 @@ export interface Wall {
     getX2(): number;
     getY2(): number;
     getOrientation(): Orientation;
+
+    render(): void;
+    renderMinimap(ctx: CanvasRenderingContext2D): void;
 }

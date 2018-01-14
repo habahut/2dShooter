@@ -1,12 +1,12 @@
 import { Room } from '../interfaces/Room';
 import { Renderable } from '../interfaces/Renderable';
-import { RenderableDebug } from '../interfaces/RenderableDebug';
+import { RenderableMinimap } from '../interfaces/RenderableMinimap';
 import { Door } from '../interfaces/Door';
 import { Wall } from '../interfaces/Wall';
 import { Point } from "../util/Point";
 import { XYMap } from "../util/XYMap";
 
-export class RoomStandard implements Room, Renderable, RenderableDebug {
+export class RoomStandard implements Room, Renderable, RenderableMinimap {
     roomTileSize: number;
     
     // TODO: how do doors get added here to the room? Does room factory need to know about them?
@@ -21,10 +21,22 @@ export class RoomStandard implements Room, Renderable, RenderableDebug {
         this.walls = walls;
         this.pointMap = new XYMap(points);
         this.id = id;
+        this.doors = [];
     }
 
     render() { }
-    renderDebug() { }
+    renderMinimap(ctx: CanvasRenderingContext2D) {
+        for (let wall of this.walls) {
+            wall.renderMinimap(ctx);
+        }
+        for (let door of this.doors) {
+            door.renderMinimap(ctx);
+        }
+    }
+
+    addDoor(door: Door) {
+        this.doors.push(door);
+    }
 
     getWalls() {
         return this.walls;
@@ -36,3 +48,4 @@ export class RoomStandard implements Room, Renderable, RenderableDebug {
         return this.id == other.id;
     }
 }
+

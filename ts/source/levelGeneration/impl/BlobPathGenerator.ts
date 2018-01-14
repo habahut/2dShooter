@@ -10,6 +10,7 @@ import { Room } from "../../interfaces/Room";
 import { MersenneTwister } from "../../util/MersenneTwister";
 import { XYMap } from "../../util/XYMap";
 import { Orientation } from "../../enums/Orientation";
+import { RoomUtils } from "../../util/RoomUtils";
 
 // This can work for both Large and Small blob paths
 export class BlobPathGenerator implements PathGenerator {
@@ -37,24 +38,24 @@ export class BlobPathGenerator implements PathGenerator {
             nextY = y,
             pointMap: XYMap = new XYMap(),
             points: Array<Point> = [],
-            doors: Array<Door> = [],
             rooms: Array<Room> = [],
             dx = destinationX - x,
             dy = destinationY - y,
             isFirstPass = true;
 
         // build initial door.
+        let firstDoor: Door;
         if (Math.abs(dx) > Math.abs(dy)) {
             let mx = (dx > 0) ? 1 : -1;
-            doors.push(this.wallObjectFactory.buildDoor(x, y, x + mx, y, DoorType.STANDARD));
+            firstDoor = this.wallObjectFactory.buildDoor(x, y, x + mx, y, DoorType.STANDARD);
         } else {
             let my = (dy > 0) ? 1 : -1;
-            doors.push(this.wallObjectFactory.buildDoor(x, y, x, y + my, DoorType.STANDARD));
+            firstDoor = this.wallObjectFactory.buildDoor(x, y, x, y + my, DoorType.STANDARD);
         }
 
         // check if these edges are already adjacent. If so, just return initial door and were done.
         if (Math.abs(dx) + Math.abs(dy) == 1) {
-            return new RoomPath([], doors);
+            return new RoomPath([], firstDoor, firstDoor);
         }
 
         // set the origin and destination in the pointMap so we don't overwrite it.
@@ -68,6 +69,10 @@ export class BlobPathGenerator implements PathGenerator {
         if (Math.abs(dx) > Math.abs(dy)) direction = Orientation.HORIZONTAL;
         else direction = Orientation.VERTICAL;
 
+        let lastRoomX = x,
+            lastRoomY = y,
+            lastRoom: Room | undefined,
+            thisRoom: Room;
         while (true) {
             let nextStartingPoint: Point = this.selectNextBlobPoint(pointsAndLastPoint, destinationX, destinationY, direction),
                 step: number; // store the last step as well as last direction
@@ -78,22 +83,25 @@ export class BlobPathGenerator implements PathGenerator {
             dx = destinationX - x;
             dy = destinationY - y;
 
-            // What will end up happening, is that for each axis, we will be one before the destination.
-            // and then the nextStartingPoint will take us that final step to the destination on that axis.
-            // So we will stop right before the destination, and then the next starting point will take us
-            // onto the destination. So we don't want to add the next starting point.
-            if (dx + dy == 0) {
-                rooms.push(this.roomFactory.buildRoom(pointsAndLastPoint.points, RoomType.STANDARD));
-                // TODO: build the door!
-                break;
-            }
-
             if (!isFirstPass) {
-                // if we cannot get to the destination now, build the room with the points from the previous 
-                // pass, and then start a new room from nextStartingPoint.
-                rooms.push(this.roomFactory.buildRoom(pointsAndLastPoint.points, RoomType.STANDARD));
+                let thisRoom: Room = this.roomFactory.buildRoom(pointsAndLastPoint.points, RoomType.STANDARD);
+                rooms.push(thisRoom);
 
-                // TODO: build the door.
+                // The very first door is already handled before the loop, so just add it here.
+                if (lastRoom == null) {
+                    thisRoom.addDoor(firstDoor);
+                } else {
+                    this.buildDoor(lastRoom, lastRoomX, lastRoomY, thisRoom, x, y, DoorType.STANDARD);
+                }
+                lastRoom = thisRoom;
+
+                // What will end up happening, is that for each axis, we will be one before the destination.
+                // and then the nextStartingPoint will take us that final step to the destination on that axis.
+                // So we will stop right before the destination, and then the next starting point will take us
+                // onto the destination. So we don't want to add the next starting point.
+                if (dx + dy == 0) {
+                    break;
+                }
             }
             isFirstPass = false;
 
@@ -124,11 +132,35 @@ export class BlobPathGenerator implements PathGenerator {
                     stepsToTake = this.blobSizeFactor;
                 }
             }
-            pointsAndLastPoint = this.blobWalkAxis(x, y, direction, step, stepsToTake, this.blobSizeFactor, pointMap, this.mersenneTwister);
+            // if we are one away, the next blobStartingPoint will get us to our destination.
+            if (stepsToTake != 0) {
+                pointsAndLastPoint = this.blobWalkAxis(x, y, direction, step, stepsToTake, this.blobSizeFactor, pointMap, this.mersenneTwister);
+            } else {
+                // construct our pointsAndLastPoint object from just the nextStartingPoint to keep
+                // things moving forward.
+                pointsAndLastPoint = new PointsAndLastPoint([nextStartingPoint], [nextStartingPoint], nextStartingPoint);
+            }
 
         }
 
-        return new RoomPath(rooms, doors);
+        let lastPoint = pointsAndLastPoint.lastOnAxisPoint,
+            lastDoor: Door = this.wallObjectFactory.buildDoor(lastPoint.x, lastPoint.y, destinationX, destinationY, DoorType.STANDARD);
+
+        return new RoomPath(rooms, firstDoor, lastDoor);
+    }
+
+    buildDoor(lastRoom: Room, lastRoomX: number, lastRoomY: number, thisRoom: Room, x: number, y: number, doorType: DoorType) {
+        let connections: XYMap = RoomUtils.calculateEdgesBetweenRooms(lastRoom, thisRoom);
+        // TODO: for now we are just selecting the first connection.
+
+        if (connections.getPoints().length == 0)  throw "No connections between rooms: " + lastRoom + "  " + thisRoom;
+        let point1: Point = <Point> connections.getPoints()[0],
+            point2: Point = point1.value[0],
+            door: Door = this.wallObjectFactory.buildDoor(point1.x, point1.y, point2.x, point2.y, doorType);
+        if (lastRoom != null) {
+            // add door to room.
+        }
+        thisRoom.addDoor(door);
     }
 
     /**
@@ -138,7 +170,7 @@ export class BlobPathGenerator implements PathGenerator {
         if (destination > n) {
             return destination - 1 - n;
         }
-        return n - destination + 1;
+        return n - (destination + 1);
     }
 
     /**

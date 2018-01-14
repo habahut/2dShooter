@@ -43,7 +43,9 @@ describe ("HallwayGeneratorTests", () => {
             doorFactory: WallObjectFactory = new WallObjectFactory(100),
             hallwayGenerator: HallwayGenerator = new HallwayGenerator(3, 1, roomFactory, doorFactory),
             roomPath: RoomPath = hallwayGenerator.roomWalk(edge),
-            expectedRoomPath: RoomPath = new RoomPath([], [doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD)]);
+            expectedRoomPath: RoomPath = new RoomPath([], doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD),
+                doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD));
+        debugger;
         expect(PathTestUtil.verifyPath(roomPath, expectedRoomPath)).to.equal(true);
     }),
     it("case 1", () => {
@@ -56,10 +58,8 @@ describe ("HallwayGeneratorTests", () => {
                 [roomFactory.buildRoom([
                     new Point(0,0), new Point(1, 0), new Point(2, 0), new Point(2, 1)
                 ], RoomType.STANDARD)],
-                [
-                    doorFactory.buildDoor(0, 0, 1, 0, DoorType.STANDARD), 
-                    doorFactory.buildDoor(2, 0, 2, 1, DoorType.STANDARD)
-                ]
+                doorFactory.buildDoor(0, 0, 1, 0, DoorType.STANDARD), 
+                doorFactory.buildDoor(2, 0, 2, 1, DoorType.STANDARD)
             );
         expect(PathTestUtil.verifyPath(hallwayGenerator.roomWalk(edge), expectedRoomPath)).to.equal(true);
     }),
@@ -74,11 +74,8 @@ describe ("HallwayGeneratorTests", () => {
                     new Point(3,3), new Point(2, 3), new Point(1, 3), new Point(0, 3),
                     new Point(0,2), new Point(0, 1), new Point(-1, 1)
                 ], RoomType.STANDARD)],
-                [
-                    doorFactory.buildDoor(3, 3, 2, 3, DoorType.STANDARD), 
-                    doorFactory.buildDoor(0, 1, -1, 1, DoorType.STANDARD)
-                ]
-  
+                doorFactory.buildDoor(3, 3, 2, 3, DoorType.STANDARD), 
+                doorFactory.buildDoor(0, 1, -1, 1, DoorType.STANDARD)
             );
         expect(PathTestUtil.verifyPath(hallwayGenerator.roomWalk(edge), expectedRoomPath)).to.equal(true);
     });

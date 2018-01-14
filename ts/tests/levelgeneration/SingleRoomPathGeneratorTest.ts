@@ -29,7 +29,9 @@ describe ("SingleRoomPathGenerator Tests", () => {
             singleRoomPathGenerator: SingleRoomPathGenerator = new SingleRoomPathGenerator(roomFactory, doorFactory),
 
             doors: Array<Door> = [doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD)],
-            expectedPath: RoomPath = new RoomPath(roomsFromPoints(expectedPoints, roomFactory), doors),
+            expectedPath: RoomPath = new RoomPath(roomsFromPoints(expectedPoints, roomFactory),
+                    doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD), 
+                    doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD)),
             path: RoomPath = singleRoomPathGenerator.roomWalk(edge);
 
         expect(PathTestUtil.verifyPath(path, expectedPath)).to.equal(true);
@@ -51,10 +53,11 @@ describe ("SingleRoomPathGenerator Tests", () => {
             wallFactory: WallFactory = new WallFactory(100),
             roomFactory: RoomFactory = new RoomFactory(100, wallFactory),
             singleRoomPathGenerator: SingleRoomPathGenerator = new SingleRoomPathGenerator(roomFactory, doorFactory),
-            expectedPath: RoomPath = new RoomPath(roomsFromPoints(expectedPoints, roomFactory), doors),
+            expectedPath: RoomPath = new RoomPath(roomsFromPoints(expectedPoints, roomFactory), 
+                doorFactory.buildDoor(0, 3, 0, 2, DoorType.STANDARD),
+                doorFactory.buildDoor(-1, 0, -2, 0, DoorType.STANDARD)),
             path: RoomPath = singleRoomPathGenerator.roomWalk(edge);
 
-        debugger;
         expect(PathTestUtil.verifyPath(path, expectedPath)).to.equal(true);
     });
 });
@@ -67,9 +70,6 @@ function roomsFromPoints(points: Array<Point>, roomFactory: RoomFactory) : Array
     }
     return rooms;
 }
-
-
-// TODO: why are doors not added to the rooms being generated?
 
 function verifyDoors(doors: Array<Door>, expectedDoors: Array<Door>) : boolean {
     if (doors.length != expectedDoors.length) return false;

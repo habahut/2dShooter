@@ -31,9 +31,12 @@ export interface PathGenerator {
 // with the new process
 export class RoomPath {
     rooms: Array<Room>;
+    firstDoor: Door;
+    lastDoor: Door;
     doors: Array<Door>;
-    constructor(rooms: Array<Room>, doors: Array<Door>) {
+    constructor(rooms: Array<Room>, firstDoor: Door, lastDoor: Door) {
         this.rooms = rooms;
-        this.doors = doors;
+        this.firstDoor = firstDoor;
+        this.lastDoor = lastDoor;
     }
 }

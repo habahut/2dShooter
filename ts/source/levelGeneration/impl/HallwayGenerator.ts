@@ -27,9 +27,6 @@ export class HallwayGenerator implements PathGenerator {
         this.wallObjectFactory = wallObjectFactory;
     }
 
-    //////// does this thing merge new rooms if there is overlap?
-    // or do we do that in level generator?
-    // we need to return some grouping of points into rooms from this guy
     roomWalk(edge: Edge) : RoomPath {
         let destinationX = edge.p2.x,
             destinationY = edge.p2.y,
@@ -38,26 +35,24 @@ export class HallwayGenerator implements PathGenerator {
             nextX = x,
             nextY = y,
             points: Array<Point> = [],
-            doors: Array<Door> = [],
 
         // build initial door
             dx = destinationX - x,
             dy = destinationY - y,
             mx = (dx < 0) ? -1 : 1,
-            my = (dy < 0) ? -1 : 1;
+            my = (dy < 0) ? -1 : 1,
+
+            firstDoor: Door;
         if (Math.abs(dx) > Math.abs(dy)) {
-            doors.push(this.wallObjectFactory.buildDoor(x, y, x + mx, y, DoorType.STANDARD));
+            firstDoor = this.wallObjectFactory.buildDoor(x, y, x + mx, y, DoorType.STANDARD);
         } else {
-            doors.push(this.wallObjectFactory.buildDoor(x, y, x, y + my, DoorType.STANDARD));
+            firstDoor = this.wallObjectFactory.buildDoor(x, y, x, y + my, DoorType.STANDARD);
         }
 
         // special case: the rooms are adjacent, build only a door between them and return
         if (Math.abs(dx) + Math.abs(dy) == 1) {
-            return new RoomPath([], doors);
+            return new RoomPath([], firstDoor, firstDoor);
         }
-
-
-        // TODO: need to attach the door to all these rooms.
 
         while (true) {
             dx = destinationX - x;
@@ -82,10 +77,10 @@ export class HallwayGenerator implements PathGenerator {
         }
 
         // build last door, between the final room and the preceeding one.
-        doors.push(this.wallObjectFactory.buildDoor(x - mx, y - my, x, y, DoorType.STANDARD));
+        let lastDoor = this.wallObjectFactory.buildDoor(x - mx, y - my, x, y, DoorType.STANDARD);
         // add the last room
         points.push(new Point(x, y));
-        return new RoomPath([this.roomFactory.buildRoom(points, RoomType.STANDARD)], doors);
+        return new RoomPath([this.roomFactory.buildRoom(points, RoomType.STANDARD)], firstDoor, lastDoor);
     }
 
     expandPath(x: number, y: number, vertical: boolean, width: number) : Array<Point> {

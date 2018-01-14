@@ -3,8 +3,9 @@ import { Door } from './Door';
 import { Wall } from './Wall';
 import { Point } from "../util/Point";
 import { XYMap } from "../util/XYMap";
+import { RenderableMinimap } from "./RenderableMinimap";
 
-export interface Room {
+export interface Room extends Renderable, RenderableMinimap {
     // X and Y on the row grid, not absolute coordinates on the map
     pointMap: XYMap;
     id: string;
@@ -15,7 +16,11 @@ export interface Room {
     doors: Array<Door>;
     getWalls(): Array<Wall>
 
-
     getPointMap(): XYMap;
     equals(other: Room): boolean;
+
+    render(): void;
+    renderMinimap(ctx: CanvasRenderingContext2D): void;
+
+    addDoor(door: Door): void;
 }

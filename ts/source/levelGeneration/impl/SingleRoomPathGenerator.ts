@@ -21,15 +21,27 @@ export class SingleRoomPathGenerator implements PathGenerator {
 
     roomWalk(edge: Edge) : RoomPath {
         let rooms: Array<Room> = [],
-            doors: Array<Door> = [],
-            doorMap: XYMap = new XYMap();
 
-        let destinationX = edge.p2.x,
+            destinationX = edge.p2.x,
             destinationY = edge.p2.y,
             x = edge.p1.x,
             y = edge.p1.y,
             nextX = x,
-            nextY = y;
+            nextY = y,
+
+            dx = edge.p2.x - x,
+            dy = edge.p2.y - y,
+            firstDoor: Door;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) firstDoor = this.wallObjectFactory.buildDoor(x, y, x + 1, y, DoorType.STANDARD);
+            else firstDoor = this.wallObjectFactory.buildDoor(x, y, x - 1, y, DoorType.STANDARD);
+        } else { 
+            if (dy > 0) firstDoor = this.wallObjectFactory.buildDoor(x, y, x, y + 1, DoorType.STANDARD);
+            else firstDoor = this.wallObjectFactory.buildDoor(x, y, x, y - 1, DoorType.STANDARD);
+        }
+
+        // if we are using adjacent rooms, there will only be one door.
+        let lastDoor: Door = firstDoor;
         while (true) {
             rooms.push(this.roomFactory.buildRoom([new Point(x, y)], RoomType.STANDARD));
             if (x == destinationX && y == destinationY)  break;
@@ -44,18 +56,14 @@ export class SingleRoomPathGenerator implements PathGenerator {
                 else nextY = y - 1;
             }
 
-            let door: Door = this.wallObjectFactory.buildDoor(x, y, nextX, nextY, DoorType.STANDARD);
-            doors.push(door);
-            // set the door in both locations of the map, since we want it to be accessable from
-            // either coordinate.
-            doorMap.set(x, y, door);
-            doorMap.set(nextX, nextY, door);
-
+            // TODO: this is incomplete, it doesn't add the doors to the rooms being built.
+            // However, I don't think this path generator will see much use, so leaving it for now...
+            lastDoor = this.wallObjectFactory.buildDoor(x, y, nextX, nextY, DoorType.STANDARD);
             x = nextX;
             y = nextY;
         }
 
-        return new RoomPath(rooms, doors);
+        return new RoomPath(rooms, firstDoor, lastDoor);
     }
 
 }

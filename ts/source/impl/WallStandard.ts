@@ -1,11 +1,11 @@
 import { Orientation } from "../enums/Orientation";
 import { Wall } from "../interfaces/Wall";
 import { Renderable } from "../interfaces/Renderable";
-import { RenderableDebug } from "../interfaces/RenderableDebug";
 import { Door } from "../interfaces/Door";
 import { WindowObj } from "../interfaces/WindowObj";
+import { RenderableMinimap } from "../interfaces/RenderableMinimap";
 
-export class WallStandard implements Wall, Renderable, RenderableDebug {
+export class WallStandard implements Wall, Renderable, RenderableMinimap {
 
     x1: number;
     y1: number;
@@ -28,7 +28,14 @@ export class WallStandard implements Wall, Renderable, RenderableDebug {
     }
 
     render() { }
-    renderDebug() { }
+    renderMinimap(ctx: CanvasRenderingContext2D) {
+        ctx.strokeStyle = "black";
+        ctx.beginPath();
+        ctx.moveTo(this.x1, this.y1);
+        ctx.lineTo(this.x2, this.y2);
+        ctx.stroke();
+        ctx.closePath();
+    }
 
     getX1() {
         return this.x1;

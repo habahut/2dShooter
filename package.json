@@ -7,10 +7,10 @@
         "height": 650
     },
     "dependencies": {
-        "@types/chai": "^4.0.7",
+        "@types/chai": "^4.1.0",
         "chai": "^4.1.2",
         "jquery": "^3.2.1",
-        "mocha": "^4.0.1",
+        "mocha": "^4.1.0",
         "require": "^2.4.20",
         "ts-node": "^3.3.0",
         "typescript": "^2.6.2"
@@ -20,8 +20,15 @@
         "single-test": "./single-unit-test.sh"
     },
     "devDependencies": {
-        "@types/jasmine": "^2.8.2",
+        "@types/jasmine": "^2.8.3",
         "@types/jquery": "^3.2.17",
-        "@types/requirejs": "^2.1.31"
+        "@types/requirejs": "^2.1.31",
+        "browserify": "^15.0.0",
+        "gulp": "^3.9.1",
+        "gulp-typescript": "^3.2.3",
+        "gulp-util": "^3.0.8",
+        "tsify": "^3.0.4",
+        "vinyl-source-stream": "^2.0.0",
+        "watchify": "^3.9.0"
     }
 }

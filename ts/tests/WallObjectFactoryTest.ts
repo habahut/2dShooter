@@ -21,9 +21,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             door: Door = wallObjectFactory.buildDoor(5, 5, 5, 6, DoorType.STANDARD);
-        expect(door.x > 500).to.equal(true);
-        expect(door.x < 600).to.equal(true);
-        expect(door.y == 600).to.equal(true);
+        expect(door.x1 > 500).to.equal(true);
+        expect(door.x1 < 600).to.equal(true);
+        expect(door.x2 > 500).to.equal(true);
+        expect(door.x2 < 600).to.equal(true);
+        expect(door.y1 == 600).to.equal(true);
         expect(door.orientation == Orientation.VERTICAL).to.equal(true);
     }),
     it("creates a horizontal door between 5,6 and 5,5", () => {
@@ -31,9 +33,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             door: Door = wallObjectFactory.buildDoor(5, 6, 5, 5, DoorType.STANDARD);
-        expect(door.x > 500).to.equal(true);
-        expect(door.x < 600).to.equal(true);
-        expect(door.y == 600).to.equal(true);
+        expect(door.x1 > 500).to.equal(true);
+        expect(door.x1 < 600).to.equal(true);
+        expect(door.x2 > 500).to.equal(true);
+        expect(door.x2 < 600).to.equal(true);
+        expect(door.y1 == 600).to.equal(true);
         expect(door.orientation == Orientation.VERTICAL).to.equal(true);
     }),
     it("creates a vertical door between 5,5 and 6,5", () => {
@@ -41,9 +45,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             door: Door = wallObjectFactory.buildDoor(5, 5, 6, 5, DoorType.STANDARD);
-        expect(door.y > 500).to.equal(true);
-        expect(door.y < 600).to.equal(true);
-        expect(door.x == 600).to.equal(true);
+        expect(door.y1 > 500).to.equal(true);
+        expect(door.y1 < 600).to.equal(true);
+        expect(door.y2 > 500).to.equal(true);
+        expect(door.y2 < 600).to.equal(true);
+        expect(door.x1 == 600).to.equal(true);
         expect(door.orientation == Orientation.HORIZONTAL).to.equal(true);
     }),
     it("creates a vertical door between 6,5 and 5,5", () => {
@@ -51,9 +57,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             door: Door = wallObjectFactory.buildDoor(6, 5, 5, 5, DoorType.STANDARD);
-        expect(door.y > 500).to.equal(true);
-        expect(door.y < 600).to.equal(true);
-        expect(door.x == 600).to.equal(true);
+        expect(door.y1 > 500).to.equal(true);
+        expect(door.y1 < 600).to.equal(true);
+        expect(door.y2 > 500).to.equal(true);
+        expect(door.y2 < 600).to.equal(true);
+        expect(door.x1 == 600).to.equal(true);
         expect(door.orientation == Orientation.HORIZONTAL).to.equal(true);
     }),
     // window tests
@@ -62,9 +70,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             windowObj: Window = wallObjectFactory.buildWindow(5, 5, 6, 5, WindowType.STANDARD);
-        expect(windowObj.y > 500).to.equal(true);
-        expect(windowObj.y < 600).to.equal(true);
-        expect(windowObj.x == 600).to.equal(true);
+        expect(windowObj.y1 > 500).to.equal(true);
+        expect(windowObj.y1 < 600).to.equal(true);
+        expect(windowObj.y2 > 500).to.equal(true);
+        expect(windowObj.y2 < 600).to.equal(true);
+        expect(windowObj.x1 == 600).to.equal(true);
         expect(windowObj.orientation == Orientation.HORIZONTAL).to.equal(true);
     }),
     it("creates a vertical window between 6,5 and 5,5", () => {
@@ -72,9 +82,11 @@ describe("WallObjectFactory Tests", () => {
             roomFactory = new RoomFactory(100, wallFactory),
             wallObjectFactory = new WallObjectFactory(100),
             windowObj: Window = wallObjectFactory.buildWindow(6, 5, 5, 5, WindowType.STANDARD);
-        expect(windowObj.y > 500).to.equal(true);
-        expect(windowObj.y < 600).to.equal(true);
-        expect(windowObj.x == 600).to.equal(true);
+        expect(windowObj.y1 > 500).to.equal(true);
+        expect(windowObj.y1 < 600).to.equal(true);
+        expect(windowObj.y2 > 500).to.equal(true);
+        expect(windowObj.y2 < 600).to.equal(true);
+        expect(windowObj.x1 == 600).to.equal(true);
         expect(windowObj.orientation == Orientation.HORIZONTAL).to.equal(true);
     });
 

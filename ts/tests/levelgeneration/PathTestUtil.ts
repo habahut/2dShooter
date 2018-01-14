@@ -6,7 +6,7 @@ export class PathTestUtil {
     // TODO: this is dumb, there should be a comparable interface that these things can implement so i
     // don't have to keep writing this nonsense for every test.
     static verifyPath(path: RoomPath, expectedPath: RoomPath) : boolean {
-        if (path.doors.length != expectedPath.doors.length || path.rooms.length != expectedPath.rooms.length) {
+        if (path.rooms.length != expectedPath.rooms.length) {
             return false;
         }
 
@@ -27,16 +27,11 @@ export class PathTestUtil {
             if (!found) return false;
         }
 
-        for (let door of path.doors) {
-            let found : boolean = false;
-            for (let expectedDoor of expectedPath.doors) {
-                if (door.equals(expectedDoor)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) return false;
+        // The paths should never contain a null value for the start and ending doors.
+        if (!path.firstDoor.equals(expectedPath.firstDoor) || !path.lastDoor.equals(expectedPath.lastDoor)) {
+            return false;
         }
+
         return true;
     }
 }

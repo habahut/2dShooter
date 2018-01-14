@@ -9,8 +9,8 @@ import { Orientation } from "../enums/Orientation";
 
 
 export class WallObjectFactory {
-    public static MAX_STANDARD_DOOR_SIZE = .8;
-    public static MIN_STANDARD_DOOR_SIZE = .4;
+    public static MAX_STANDARD_DOOR_SIZE_PERCENT = .8;
+    public static MIN_STANDARD_DOOR_SIZE_PERCENT = .4;
 
     private roomTileSize: number;
 
@@ -35,54 +35,67 @@ export class WallObjectFactory {
     }
 
     calculateWallObjectCoords(r1x: number, r1y: number, r2x: number, r2y: number,
-            length?: number) : WallObjectTuple {
+            lengthPercent?: number) : WallObjectTuple {
 
         if (r1x == r2x && r1y == r2y) {
             throw Error("r1x == r2x && r1y == r2y!");
         }
-        if (length === undefined) { 
+        if (lengthPercent === undefined) { 
             // TODO: refactor to util method
-            length = Math.random() 
-                * (WallObjectFactory.MAX_STANDARD_DOOR_SIZE - WallObjectFactory.MIN_STANDARD_DOOR_SIZE)
-                + WallObjectFactory.MIN_STANDARD_DOOR_SIZE;
+            lengthPercent = Math.random() 
+                * (WallObjectFactory.MAX_STANDARD_DOOR_SIZE_PERCENT - WallObjectFactory.MIN_STANDARD_DOOR_SIZE_PERCENT)
+                + WallObjectFactory.MIN_STANDARD_DOOR_SIZE_PERCENT;
         }
-        let x, y, 
+        let border = ((1 - lengthPercent) * this.roomTileSize) / 2,
+            length = this.roomTileSize * lengthPercent,
+            x1: number, 
+            y1: number,
+            x2: number,
+            y2: number,
             orientation: Orientation;
         if (r1x == r2x) {
             orientation = Orientation.VERTICAL;
-            y = Math.max(r1y, r2y) * this.roomTileSize;
-            x = (r1x + (.5 * length)) * this.roomTileSize;
+            y1 = Math.max(r1y, r2y) * this.roomTileSize;
+            x1 = r1x * this.roomTileSize + border;
+            x2 = x1 + length;
+            y2 = y1;
         } else {
             orientation = Orientation.HORIZONTAL;
-            x = Math.max(r1x, r2x) * this.roomTileSize;
-            y = (r1y + (.5 * length)) * this.roomTileSize;
+            x1 = Math.max(r1x, r2x) * this.roomTileSize;
+            y1 = r1y * this.roomTileSize + border;
+            y2 = y1 + length;
+            x2 = x1;
         } 
-        return new WallObjectTuple(x, y, length, orientation); 
+        return new WallObjectTuple(x1, y1, x2, y2, length, orientation); 
     }
 
     buildStandardDoor(wallObjectTuple: WallObjectTuple, r1x: number,
             r1y: number, r2x: number, r2y: number) : Door {
-        return new DoorStandard(wallObjectTuple.x, wallObjectTuple.y, r1x, r1y, r2x, r2y, 
+        return new DoorStandard(wallObjectTuple.x1, wallObjectTuple.y1, wallObjectTuple.x2, wallObjectTuple.y2, r1x, r1y, r2x, r2y, 
             wallObjectTuple.length, DoorState.CLOSED, wallObjectTuple.orientation);
     }
 
     buildStandardWindow(wallObjectTuple: WallObjectTuple, r1x: number,
             r1y: number, r2x: number, r2y: number) : Window {
-        return new WindowStandard(wallObjectTuple.x, wallObjectTuple.y, r1x, r1y, r2x, r2y, 
+        return new WindowStandard(wallObjectTuple.x1, wallObjectTuple.y1, wallObjectTuple.x2, wallObjectTuple.y2, r1x, r1y, r2x, r2y, 
             wallObjectTuple.length, wallObjectTuple.orientation);
     }
 }
 
 // convenience tuple object for calculations in this class.
 class WallObjectTuple {
-    x: number;
-    y: number;
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
     length: number;
     orientation: Orientation;
 
-    constructor(x: number, y: number, length: number, orientation: number) {
-        this.x = x;
-        this.y = y;
+    constructor(x1: number, y1: number, x2: number, y2: number, length: number, orientation: number) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
         this.length = length;
         this.orientation = orientation;
     }
