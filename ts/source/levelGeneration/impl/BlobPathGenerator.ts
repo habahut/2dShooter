@@ -99,7 +99,7 @@ export class BlobPathGenerator implements PathGenerator {
                 // and then the nextStartingPoint will take us that final step to the destination on that axis.
                 // So we will stop right before the destination, and then the next starting point will take us
                 // onto the destination. So we don't want to add the next starting point.
-                if (dx + dy == 0) {
+                if (dx == 0 && dy == 0) {
                     break;
                 }
             }
@@ -158,7 +158,7 @@ export class BlobPathGenerator implements PathGenerator {
             point2: Point = point1.value[0],
             door: Door = this.wallObjectFactory.buildDoor(point1.x, point1.y, point2.x, point2.y, doorType);
         if (lastRoom != null) {
-            // add door to room.
+            lastRoom.addDoor(door);
         }
         thisRoom.addDoor(door);
     }

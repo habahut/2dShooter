@@ -17,6 +17,7 @@ import { MersenneTwister } from "../util/MersenneTwister";
 
 /// we should have different "level generators", need this behind an interface
 export class LevelGenerator {
+
     roomFactory: RoomFactory;
     wallFactory: WallFactory;
     wallObjectFactory: WallObjectFactory;
@@ -53,11 +54,7 @@ export class LevelGenerator {
             minimumSpanningTree: Graph = MinimumSpanningTreeBuilder.build(seeds),
 
 
-            // this will no longer be called. Instead we will be calling one of the various PathGenerators
-            // the path generators wont care about keeping paths within the height and width
-            // of the level, so it will be up to the level generator to prune points off the map.
-            temp = this.pointWalk(minimumSpanningTree.edgeCollection),
-
+    
             // here we should expand some percentage of the seed rooms before
             // we do anything else to ensure we have at least a baseline of interesting spaces
             // in the level.
@@ -78,103 +75,8 @@ export class LevelGenerator {
         return world;
     }
 
-    /**
-     * Takes an array of points representing the randomly generated paths in the level
-     * and converts them to rooms, randomly expanding some rooms. Handles building the doors between
-     * these expanded rooms.
-     */
+    mergeRooms() {
 
-
-    //// this hsould go in order growing each room one at a time so adjacent rooms don't eat each other.
-    expandAndBuildRooms(points: Array<Point>, expandPercent: number) : Array<Room> {
-        let roomMap: XYMap = new XYMap();
-        for (let point of points) {
-            let room: Room = this.roomFactory.buildRoom([point], RoomType.STANDARD);
-            
-            if (this.mersenneTwister.genrand_real3() >= expandPercent) {
-                
-            }
-
-        }
-        return [];
-
-
-
-        // we need to accept some set of room features we can select from randomly.
-        // then we need some way to negotiate them into the map.
-
-        // we should allow the levelGenerator to take some behavioral parameters, to favor different
-        // types of room configurations. Merging many continuous single rooms into a long hallway,
-        // versus expanding them outwards, versus leaving them alone
-
-
-    }
-
-    /**
-     * Given a collection of edges, this method turns the edges into a series of points,
-     * which can later be turned into rooms. It ensures that there is a contiguous
-     * line of rooms for each edge (smooth out diagonals into multiple rooms). It also returns
-     * an array of door objects between each point.
-     *
-     * The list of doors returned here is the maximum number of doors necessary to connect
-     * all the rooms created and make the map fully traversable. Later, when we epand various rooms,
-     * we can remove some of these doors.
-     *
-     * Returns an object like this: {"points": Array<Point>, "doors": Array<Door>, "doorMap": XYMap}
-     */
-    pointWalk(edgeCollection: EdgeCollection) : any {
-
-        //// TODO:
-        //// currently this does all edges. So we will need to pull the foor loop out to a higher method that 
-        //calls one of the respective generators
-
-
-
-        let points: Array<Point> = [],
-            // to prevent duplicates
-            pointMap: XYMap = new XYMap(),
-            doors: Array<Door> = [],
-            doorMap: XYMap = new XYMap();
-
-        for (let edge of edgeCollection.sortedEdges) {
-            let destinationX = edge.p2.x,
-                destinationY = edge.p2.y,
-                x = edge.p1.x,
-                y = edge.p1.y,
-                nextX = x,
-                nextY = y;
-            while (true) {
-                let point: Point = new Point(x, y);
-                if (pointMap.get(x, y) == undefined) {
-                    pointMap.set(x, y, point);
-                    points.push(point);
-                }
-
-                if (point.equalsCoords(edge.p2)) break;
-
-                let dx = edge.p2.x - x,
-                    dy = edge.p2.y - y;
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    if (dx > 0) nextX = x + 1;
-                    else nextX = x - 1;
-                } else { 
-                    if (dy > 0) nextY = y + 1;
-                    else nextY = y - 1;
-                }
-
-                let door: Door = this.wallObjectFactory.buildDoor(x, y, nextX, nextY, DoorType.STANDARD);
-                doors.push(door);
-                // set the door in both locations of the map, since we want it to be accessable from
-                // either coordinate.
-                doorMap.set(x, y, door);
-                doorMap.set(nextX, nextY, door);
-
-                x = nextX;
-                y = nextY;
-            }
-        }
-
-        return {"points": points, "doors": doors, "doorMap": doorMap};
     }
 
     /**

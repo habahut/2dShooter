@@ -11,8 +11,8 @@ import * as $ from "jquery";
 
 debugger;
 let 
-    //random = 6998031.973812275,
-    random = Math.random() * 12341325,
+    random = 5966339.226824012,
+    //random = Math.random() * 12341325,
     wallFactory: WallFactory = new WallFactory(100),
     roomFactory: RoomFactory = new RoomFactory(100, wallFactory),
     wallObjectFactory: WallObjectFactory = new WallObjectFactory(100),

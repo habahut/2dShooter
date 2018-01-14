@@ -8,25 +8,38 @@
 	"buffers":
 	[
 		{
-			"contents": "import { RoomFactory } from \"./RoomFactory\";\nimport { WallFactory } from \"./WallFactory\";\nimport { WallObjectFactory } from \"./WallObjectFactory\";\n\n// This Factory builds other factories that build objects scaled by room size\n// i.e. Room, Door etc.\n//\n// Should be renamed \"RoomScaledFactoryFactory\"\nexport class RoomScaledObjectFactoryFactory {\n    roomTileSize: number;\n\t\n    constructor(roomTileSize: number) {\n        this.roomTileSize = roomTileSize;\n    }\n\n    buildRoomFactory() {\n        return new RoomFactory(this.roomTileSize);\n    }\n\n    buildWallFactory() {\n        return new WallFactory(this.roomTileSize);\n    }\n\n    buildWallObjectFactory() {\n        return new WallObjectFactory(this.roomTileSize);\n    }\n\n    getRoomTileSize() {\n        return this.roomTileSize;\n    }\n}\n\n",
-			"file": "ts/source/factories/RoomScaledObjectFactoryFactory.ts",
-			"file_size": 792,
-			"file_write_time": 131583071450168183,
+			"file": "ts/source/impl/RoomStandard.ts",
 			"settings":
 			{
-				"buffer_size": 792,
+				"buffer_size": 1378,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "References to class RoomScaledObjectFactoryFactory \n\nC:/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts:\n    9:  export class RoomScaledObjectFactoryFactory {\n\n1 matches in 1 file\n",
+			"contents": "import {} from \"jasmine\";\nimport { expect } from \"chai\";\n\nimport { Edge } from \"../source/util/Graph\";\nimport { Point } from \"../source/util/Point\";\nimport { HallwayGenerator } from \"../source/levelGeneration/impl/HallwayGenerator\";\nimport { WallFactory } from \"../source/factories/WallFactory\";\nimport { RoomFactory } from \"../source/factories/RoomFactory\";\nimport { WallObjectFactory } from \"../source/factories/WallObjectFactory\";\nimport { DoorType } from \"../source/enums/DoorType\";\nimport { RoomType } from \"../source/enums/RoomType\";\nimport { RoomTestUtil } from \"./util/RoomTestUtil\";\nimport { RoomPath } from \"../source/levelGeneration/interfaces/PathGenerator\";\n\ndescribe (\"HallwayGeneratorTests\", () => {\n    it(\"expands correctly in the vertical\", () => {\n\n\n    }),\n    it(\"expands correctly in the horizontal\", () => {\n    }),\n    it(\"special case: adjacent rooms\", () => {\n        let edge: Edge = new Edge(new Point(0,0), new Point(0,1), 1),\n            wallFactory: WallFactory = new WallFactory(100),\n            roomFactory: RoomFactory = new RoomFactory(100, wallFactory),\n            doorFactory: WallObjectFactory = new WallObjectFactory(100),\n            hallwayGenerator: HallwayGenerator = new HallwayGenerator(3, 1, roomFactory, doorFactory),\n            roomPath: RoomPath = hallwayGenerator.roomWalk(edge),\n            expectedRoomPath: RoomPath = new RoomPath([], [doorFactory.buildDoor(0, 0, 0, 1, DoorType.STANDARD)]);\n        expect(verifyPath(roomPath, expectedRoomPath)).to.equal(true);\n    }),\n    it(\"case 1\", () => {\n        let edge: Edge = new Edge(new Point(0,0), new Point(2, 1), 1),\n            wallFactory: WallFactory = new WallFactory(100),\n            roomFactory: RoomFactory = new RoomFactory(100, wallFactory),\n            doorFactory: WallObjectFactory = new WallObjectFactory(100),\n            hallwayGenerator: HallwayGenerator = new HallwayGenerator(3, 1, roomFactory, doorFactory),\n            expectedRoomPath: RoomPath = new RoomPath(\n                [roomFactory.buildRoom([\n                    new Point(0,0), new Point(1, 0), new Point(2, 0), new Point(2, 1)\n                ], RoomType.STANDARD)],\n                [\n                    doorFactory.buildDoor(0, 0, 1, 0, DoorType.STANDARD), \n                    doorFactory.buildDoor(2, 0, 2, 1, DoorType.STANDARD)\n                ]\n            );\n        expect(verifyPath(hallwayGenerator.roomWalk(edge), expectedRoomPath)).to.equal(true);\n    }),\n    it(\"case 2\", () => {\n        let edge: Edge = new Edge(new Point(3, 3), new Point(-1, 1), 1),\n            wallFactory: WallFactory = new WallFactory(100),\n            roomFactory: RoomFactory = new RoomFactory(100, wallFactory),\n            doorFactory: WallObjectFactory = new WallObjectFactory(100),\n            hallwayGenerator: HallwayGenerator = new HallwayGenerator(3, 1, roomFactory, doorFactory),\n            expectedRoomPath: RoomPath = new RoomPath(\n                [roomFactory.buildRoom([\n                    new Point(3,3), new Point(2, 3), new Point(1, 3), new Point(0, 3),\n                    new Point(0,2), new Point(0, 1), new Point(-1, 1)\n                ], RoomType.STANDARD)],\n                [\n                    doorFactory.buildDoor(3, 3, 2, 3, DoorType.STANDARD), \n                    doorFactory.buildDoor(0, 1, -1, 1, DoorType.STANDARD)\n                ]\n  \n            );\n        expect(verifyPath(hallwayGenerator.roomWalk(edge), expectedRoomPath)).to.equal(true);\n    });\n});\n\n// TODO: this is dumb, there should be a comparable interface that these things can implement so i\n// don't have to keep writing this nonsense for every test.\nfunction verifyPath(path: RoomPath, expectedPath: RoomPath) {\n    if (path.doors.length != expectedPath.doors.length || path.rooms.length != expectedPath.rooms.length) {\n        return false;\n    }\n\n    for (let room of path.rooms) {\n        let found: boolean = false;\n        for (let expectedRoom of expectedPath.rooms) { \n            if (RoomTestUtil.compareRooms(room, expectedRoom)) {\n                found = true;\n                break;\n            }\n        }\n        if (!found) return false;\n    }\n\n    for (let door of path.doors) {\n        let found : boolean = false;\n        for (let expectedDoor of expectedPath.doors) {\n            if (door.equals(expectedDoor)) {\n                found = true;\n                break;\n            }\n        }\n        if (!found) return false;\n    }\n    return true;\n}\n",
+			"file": "ts/tests/HallwayGeneratorTest.ts",
+			"file_size": 4445,
+			"file_write_time": 131592440244352907,
 			"settings":
 			{
-				"buffer_size": 235,
-				"line_ending": "Windows",
-				"name": "Find References",
-				"read_only": true,
-				"scratch": true
+				"buffer_size": 4445,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "ts/source/factories/RoomFactory.ts",
+			"settings":
+			{
+				"buffer_size": 2116,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "ts/tests/util/RoomTestUtil.ts",
+			"settings":
+			{
+				"buffer_size": 1142,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -76,7 +89,7 @@
 	"expanded_folders":
 	[
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/compiled-js",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/imgs",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums",
@@ -84,14 +97,18 @@
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/levelGeneration",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/util",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests"
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/util"
 	],
 	"file_history":
 	[
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/LevelGeneratorTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/levelGeneration/LevelGenerator.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/HallwayGeneratorTest.ts",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/compiled-js/source/levelGeneration/LevelGenerator.js",
+		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl/DoorStandard.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/DoorFactoryTest.ts",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/levelGeneration/LevelGenerator.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/DoorFactory.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/impl/RoomStandard.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces/Room.ts",
@@ -103,7 +120,6 @@
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/WallFactory.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/interfaces/Wall.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/compiled-js/source/util/XYMap.js",
-		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums/Orientation.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/enums/WallOrientation.ts",
 		"/C/Users/Trevor/Documents/coding-projects/2dShooter/ts/tests/XYMapsTest.ts",
@@ -123,7 +139,7 @@
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 23.0
 	},
 	"find_in_files":
 	{
@@ -155,24 +171,96 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 3,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "ts/source/factories/RoomScaledObjectFactoryFactory.ts",
+					"file": "ts/source/impl/RoomStandard.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 792,
+						"buffer_size": 1378,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								327,
-								327
+								366,
+								366
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"typescript_plugin_format_options":
+							{
+								"convertTabsToSpaces": true,
+								"indentSize": 4,
+								"tabSize": 4
+							},
+							"use_tab_stops": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "ts/tests/HallwayGeneratorTest.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4445,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								341,
+								341
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"typescript_plugin_format_options":
+							{
+								"convertTabsToSpaces": false,
+								"indentSize": 4,
+								"tabSize": 4
+							},
+							"use_tab_stops": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "ts/source/factories/RoomFactory.ts",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2116,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1541,
+								1541
 							]
 						],
 						"settings":
@@ -190,41 +278,34 @@
 					"type": "text"
 				},
 				{
-					"buffer": 1,
+					"buffer": 3,
+					"file": "ts/tests/util/RoomTestUtil.ts",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 235,
+						"buffer_size": 1142,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								53,
-								53
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"refinfo":
-							[
-								{
-									"3":
-									[
-										"C:/Users/Trevor/Documents/coding-projects/2dShooter/ts/source/factories/RoomScaledObjectFactoryFactory.ts",
-										8,
-										13,
-										null,
-										null
-									]
-								},
-								null,
-								"3",
-								"3",
-								"RoomScaledObjectFactoryFactory"
-							],
-							"syntax": "Packages/TypeScript/FindRefs.hidden-tmLanguage"
+							"syntax": "Packages/TypeScript/TypeScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"typescript_plugin_format_options":
+							{
+								"convertTabsToSpaces": true,
+								"indentSize": 4,
+								"tabSize": 4
+							},
+							"use_tab_stops": false
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
