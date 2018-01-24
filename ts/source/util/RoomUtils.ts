@@ -21,16 +21,16 @@ export class RoomUtils {
         for (let point of pointMap1.getPoints()) {
             let connections: Array<Point> = [];
             if (pointMap2.get(point.x + 1, point.y)) {
-                connections.push(pointMap2.get(point.x + 1, point.y));
+                connections.push(new Point(point.x + 1, point.y));
             }
             if (pointMap2.get(point.x - 1, point.y)) {
-                connections.push(pointMap2.get(point.x - 1, point.y));
+                connections.push(new Point(point.x - 1, point.y));
             }
             if (pointMap2.get(point.x, point.y + 1)) {
-                connections.push(pointMap2.get(point.x, point.y + 1));
+                connections.push(new Point(point.x, point.y + 1));
             }
             if (pointMap2.get(point.x, point.y - 1)) {
-                connections.push(pointMap2.get(point.x, point.y - 1));
+                connections.push(new Point(point.x, point.y - 1));
             }
 
             // Only create points with connections.

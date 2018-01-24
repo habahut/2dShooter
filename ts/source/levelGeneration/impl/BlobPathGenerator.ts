@@ -145,15 +145,19 @@ export class BlobPathGenerator implements PathGenerator {
 
         let lastPoint = pointsAndLastPoint.lastOnAxisPoint,
             lastDoor: Door = this.wallObjectFactory.buildDoor(lastPoint.x, lastPoint.y, destinationX, destinationY, DoorType.STANDARD);
+        lastRoom.addDoor(lastDoor);
 
+
+        // TODO: need a test to ensure the first and last rooms are linked correctly with the first and last door
         return new RoomPath(rooms, firstDoor, lastDoor);
     }
 
-    buildDoor(lastRoom: Room, lastRoomX: number, lastRoomY: number, thisRoom: Room, x: number, y: number, doorType: DoorType) {
+    buildDoor(lastRoom: Room, lastRoomX: number, lastRoomY: number, thisRoom: Room, x: number, y: number, doorType: DoorType) : void {
         let connections: XYMap = RoomUtils.calculateEdgesBetweenRooms(lastRoom, thisRoom);
         // TODO: for now we are just selecting the first connection.
 
         if (connections.getPoints().length == 0)  throw "No connections between rooms: " + lastRoom + "  " + thisRoom;
+
         let point1: Point = <Point> connections.getPoints()[0],
             point2: Point = point1.value[0],
             door: Door = this.wallObjectFactory.buildDoor(point1.x, point1.y, point2.x, point2.y, doorType);

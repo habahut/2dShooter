@@ -15,7 +15,8 @@ describe ("RoomFactory Tests", () => {
             wallFactory = new WallFactory(100),
             roomFactory = new RoomFactory(100, wallFactory),
             room = roomFactory.buildRoom(points, RoomType.STANDARD);
-        expect(room.getPointMap().get(5, 5).equals(points[0])).to.equal(true);
+        debugger;
+        expect(room.getPointMap().get(5, 5)).to.equal(true);
         expect(room.getPointMap().getPoints().length).to.equal(1);
     }),
     it("1 point room has all walls", () => {

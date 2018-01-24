@@ -4,11 +4,13 @@ import { Renderable } from "./Renderable";
 import { RenderableMinimap } from "./RenderableMinimap";
 
 export interface Door extends Renderable, RenderableMinimap {
+    // x & y pixel coordinates in the world.
     x1: number;
     y1: number;
     x2: number;
     y2: number;
 
+    // x & y coordinates of the rooms on the room grid.
     room1x: number;
     room1y: number;
     room2x: number;

@@ -3,47 +3,56 @@ import { Point } from "./Point";
 // This class takes an array of points, and provides convenience methods for
 // querying that array.
 export class XYMap {
-    private pointMap: any;
+    private pointMap: Map<number, Map<number, any> | undefined>;
     private points: Array<Point>;
     private empty: boolean;
     private immutable: boolean;
-    // I think this needs to be extended for world map, so it can index like this. Somehow...
-    // some sort of interface and an indexer utils????
 
-    // what should happen if there are multiple points in the Array<Point> with the same x and y?
-    constructor(points?: Array<Point>) {
-        this.pointMap = {};
+    // Repeated points will be ignored.
+    // TODO: perhaps there should be a different version of this that throws an error if
+    // points would be overwritten?
+    constructor(inputPoints?: Array<Point>) {
+        this.pointMap = new Map<number, Map<number, any>>();
+        this.points = [];
         // Can create an XYMap with an already predefined set of points. If so,
         // the map is immutable. Can otherwise build up the map and set immutability once
         // finished building.
-        if (! points) {
+        if (! inputPoints) {
             this.empty = true;
             this.immutable = false;
             return;
         }
 
-        if (points.length == 0) {
+        if (inputPoints.length == 0) {
             this.empty = true
             return
         }
         this.empty = false;
-        this.points = points;
-        for (let point of points) {
-            // determine what we will set at this point. If the point has the optional value
-            // set than use that, otherwise default to true.
-            let value = point.value;
-            // this is kind of weird that we are modifying the point like this
-            if (point.value === undefined) value = true;
-            this.set(point.x, point.y, point);
+
+        this.points = [];
+        for (let point of inputPoints) {
+            // skip duplicate points
+            if (this.get(point.x, point.y) != undefined) {
+                continue;
+            }
+
+            this.set(point.x, point.y, point.value);
         }
         this.immutable = true;
     }
-    // returns the point at [x][y], or undefined if that coordinate is empty.
-    get(x: number, y: number) {
-        if (this.pointMap[x] === undefined) {
+
+    // returns the value at [x][y], or undefined if that coordinate is empty.
+    // The internal map contains points, for easy modification when setting a new value for
+    // an existing coordinate.
+    get(x: number, y: number) : any | undefined {
+        let tempMap: Map<number, any> | undefined = this.pointMap.get(x);
+        if (tempMap == undefined) {
             return undefined;
         }
-        return this.pointMap[x][y]
+        if (tempMap.get(y) == undefined) {
+            return undefined;
+        }
+        return tempMap.get(y).value;
     }
 
     getPoints() {
@@ -54,6 +63,8 @@ export class XYMap {
         return this.empty;
     }
 
+    // TODO: this should be overloaded so we aren't deconstructing the point above
+    // and the rebuilding it here...
     set(x: number, y: number, value: any = undefined) : void {
         if (this.immutable) {
             let err = new Error();
@@ -63,14 +74,31 @@ export class XYMap {
 
         if (value == undefined) value = true;
 
-        if (this.pointMap[x] === undefined) {
-            let temp : any = {};
-            temp[y] = value;
-            this.pointMap[x] = temp;
+        let tempMap: Map<number, any> | undefined = this.pointMap.get(x),
+            point: Point = new Point(x, y, value);
+        if (tempMap != undefined) {
+            // only add this point if it didn't exist already, otherwise update it.
+            if (tempMap.get(y) == undefined) {
+                this.points.push(point);
+            } else {
+                tempMap.get(y).value = value;
+            }
+            tempMap.set(y, point);
         } else { 
-            let obj = this.pointMap[x];
-            obj[y] = value;
+            let tempMap = new Map<number, any>();
+            tempMap.set(y, point);
+            this.pointMap.set(x, tempMap);
+
+            this.points.push(new Point(x, y, value));
         }
+    }
+
+    values() : Array<any> {
+        let values: Array<any> = [];
+        for (let point of this.points) {
+            values.push(point.value);
+        }
+        return values;
     }
 }
 

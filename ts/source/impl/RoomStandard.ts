@@ -9,8 +9,6 @@ import { XYMap } from "../util/XYMap";
 export class RoomStandard implements Room, Renderable, RenderableMinimap {
     roomTileSize: number;
     
-    // TODO: how do doors get added here to the room? Does room factory need to know about them?
-    // or should it generate them itself?
     doors: Array<Door>;
     walls: Array<Wall>;
     pointMap: XYMap;
@@ -29,11 +27,16 @@ export class RoomStandard implements Room, Renderable, RenderableMinimap {
         for (let wall of this.walls) {
             wall.renderMinimap(ctx);
         }
+        // TODO: maybe we should handle the rendering of the door here so that we can 
+        // ensure it points in the right direction?
         for (let door of this.doors) {
             door.renderMinimap(ctx);
+            // this is kind of hacky. We want to confirm the door is owned by both rooms.
+            // so give 
         }
     }
 
+    // TOOD: need to clip a whole in the wall for this...
     addDoor(door: Door) {
         this.doors.push(door);
     }

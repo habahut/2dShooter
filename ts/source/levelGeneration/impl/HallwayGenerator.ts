@@ -6,6 +6,8 @@ import { Point } from "../../util/Point";
 import { RoomType } from "../../enums/RoomType";
 import { DoorType } from "../../enums/DoorType";
 import { Door } from "../../interfaces/Door";
+import { Room } from "../../interfaces/Room";
+import { XYMap } from "../../util/XYMap";
 
 /**
  * Generates a hallway between points given in roomWalk(edge). Creates as straight as possible a
@@ -35,6 +37,7 @@ export class HallwayGenerator implements PathGenerator {
             nextX = x,
             nextY = y,
             points: Array<Point> = [],
+            forbiddenPoints: XYMap = new XYMap([new Point(x, y), new Point(destinationX, destinationY)]),
 
         // build initial door
             dx = destinationX - x,
@@ -43,10 +46,17 @@ export class HallwayGenerator implements PathGenerator {
             my = (dy < 0) ? -1 : 1,
 
             firstDoor: Door;
+
+        // since we don't want the edge.p1 to be a part of the hallway, take the first step
+        // in dx or dy, whichever is larger.
         if (Math.abs(dx) > Math.abs(dy)) {
             firstDoor = this.wallObjectFactory.buildDoor(x, y, x + mx, y, DoorType.STANDARD);
+            x += mx;
+            points.push(new Point(x, y));
         } else {
             firstDoor = this.wallObjectFactory.buildDoor(x, y, x, y + my, DoorType.STANDARD);
+            y += my;
+            points.push(new Point(x, y));
         }
 
         // special case: the rooms are adjacent, build only a door between them and return
@@ -54,6 +64,9 @@ export class HallwayGenerator implements PathGenerator {
             return new RoomPath([], firstDoor, firstDoor);
         }
 
+        // since we've already stepped once above, shorten the first max length by 1
+        let firstPass: boolean = true,
+            maxStraightLength: number = this.maxStraightLength - 1;
         while (true) {
             dx = destinationX - x;
             dy = destinationY - y;
@@ -61,45 +74,72 @@ export class HallwayGenerator implements PathGenerator {
             if (Math.abs(dx) > Math.abs(dy)) {
                 mx = (dx < 0) ? -1 : 1;
                 my = 0;
-                for (let i = 0;i < Math.abs(dx) && i < this.maxStraightLength; i++) {
-                    points = points.concat(this.expandPath(x, y, false, this.pathWidth));
+                for (let i = 0;i < Math.abs(dx) && i < maxStraightLength; i++) {
+                    points = points.concat(this.expandPath(x, y, false, this.pathWidth, forbiddenPoints));
                     x += mx;
                 }
             } else {
                 mx = 0;
                 my = (dy < 0) ? -1 : 1;
-                for (let i = 0;i < Math.abs(dy) && i < this.maxStraightLength; i++) {
-                    points = points.concat(this.expandPath(x, y, true, this.pathWidth));
+                for (let i = 0;i < Math.abs(dy) && i < maxStraightLength; i++) {
+                    points = points.concat(this.expandPath(x, y, true, this.pathWidth, forbiddenPoints));
                     y += my;
                 }
            }
             if (x == destinationX && y == destinationY) break;
+            if (firstPass) {
+                firstPass = false;
+                maxStraightLength++;
+            }
         }
 
         // build last door, between the final room and the preceeding one.
         let lastDoor = this.wallObjectFactory.buildDoor(x - mx, y - my, x, y, DoorType.STANDARD);
-        // add the last room
-        points.push(new Point(x, y));
-        return new RoomPath([this.roomFactory.buildRoom(points, RoomType.STANDARD)], firstDoor, lastDoor);
+        let hallway: Room = this.roomFactory.buildRoom(points, RoomType.STANDARD);
+        hallway.addDoor(firstDoor);
+        hallway.addDoor(lastDoor);
+        return new RoomPath([hallway], firstDoor, lastDoor);
     }
 
-    expandPath(x: number, y: number, vertical: boolean, width: number) : Array<Point> {
+    expandPath(x: number, y: number, vertical: boolean, width: number, forbiddenPoints: XYMap) : Array<Point> {
+        let points: Array<Point> = [new Point(x, y)];
+        // reduce width by 1 to account for central point
+        width--;
         if (width <= 1) {
-            return [new Point(x, y)];
+            return points;
         }
 
-        let points: Array<Point> = [];
         if (vertical) {
             // expand along X axis for vertical paths
-            let startX = x - Math.floor(width / 2);
-            for (let i = 0;i < width;i++) {
-                points.push(new Point(startX + i, y));
+            let xLeft = x - 1,
+                xRight = x + 1;
+            for (let i = width; i > 0; i--) {
+                if (forbiddenPoints.get(xLeft, y) == undefined) {
+                    points.push(new Point(xLeft, y));
+                    xLeft--;
+                }
+                i--;
+                if (i <= 0) continue;
+                if (forbiddenPoints.get(xRight, y) == undefined) {
+                    points.push(new Point(xRight, y));
+                    xRight++;
+                }
             }
         } else {
             // expand alond Y axis for Horizontal paths
-            let startY = y - Math.floor(width / 2);
-            for (let i = 0;i < width;i++) {
-                points.push(new Point(x, startY + i));
+            let yBottom = y - 1,
+                yTop = y + 1;
+            for (let i = width; i > 0; i--) {
+                if (forbiddenPoints.get(x, yBottom) == undefined) {
+                    points.push(new Point(x, yBottom));
+                    yBottom--;
+                }
+                i--;
+                if (i <= 0) continue;
+                if (forbiddenPoints.get(x, yTop) == undefined) {
+                    points.push(new Point(x, yTop));
+                    yTop++;
+                }
             }
         }
 

@@ -42,6 +42,20 @@ export class DoorStandard implements Door, Renderable, RenderableMinimap {
         ctx.beginPath();
         ctx.moveTo(this.x1, this.y1);
         ctx.lineTo(this.x2, this.y2);
+        if (this.room1x == this.room2x) {
+            // rooms are vertically stacked
+            if (this.room1y < this.room2y) {
+                ctx.lineTo((this.x1 + this.x2) / 2, this.y1 - 15);
+            } else {
+                ctx.lineTo((this.x1 + this.x2) / 2, this.y1 + 15);
+            }
+        } else {
+            if (this.room1x < this.room2x) {
+                ctx.lineTo(this.x1 - 15, (this.y1 + this.y2) / 2);
+            } else {
+                ctx.lineTo(this.x1 + 15, (this.y1 + this.y2) / 2);
+            }
+        }
         ctx.stroke();
         ctx.closePath();
     }

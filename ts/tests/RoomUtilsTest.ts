@@ -23,7 +23,6 @@ describe("RoomUtils Tests", () => {
         let expectedPoint = new Point(5, 5, [new Point(5, 6)]),
             expectedEdges = new XYMap([expectedPoint]);
 
-
         expect(verifyConnections(edges, expectedEdges)).to.equal(true);
     });
     it("correct edge calculation between basic room and complex room", () => {
@@ -73,7 +72,7 @@ function verifyConnections(connections: XYMap, expectedConnections: XYMap) {
     // for each point, verify that the values in both connections and expectedConnections are the same.
     for (let point of points) {
         let connectionsFound: Array<Point> = point.value,
-            connectionsExpected: Array<Point> = expectedConnections.get(point.x, point.y).value;
+            connectionsExpected: Array<Point> = expectedConnections.get(point.x, point.y);
 
         // first check that the number of connections for this point is the same in both.
         if (connectionsFound.length != connectionsExpected.length) return false;

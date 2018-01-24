@@ -3,13 +3,14 @@ import { Room } from "../interfaces/Room";
 import { Renderable } from "../interfaces/Renderable";
 
 export class World {
-    rooms: XYMap;
+    rooms: Array<Room>;
     enemies: Array<any>; // TODO not ready yet.
     roomTileSize: number;
 
     // think this should take an XYMap of the rooms.
-    constructor(roomTileSize: number) {
+    constructor(roomTileSize: number, rooms: Array<Room>) {
         this.roomTileSize = roomTileSize;
+        this.rooms = rooms;
     }
 
     /**
@@ -24,7 +25,9 @@ export class World {
     /**
      * Get the room located at X and Y grid coordinate.
      */
+    /*
     getRoom(x: number, y: number) : Room {
         return this.rooms.get(x, y);
     }
+    */
 }
