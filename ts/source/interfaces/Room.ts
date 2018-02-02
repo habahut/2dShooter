@@ -4,6 +4,7 @@ import { Wall } from './Wall';
 import { Point } from "../util/Point";
 import { XYMap } from "../util/XYMap";
 import { RenderableMinimap } from "./RenderableMinimap";
+import { MinimapCamera } from "../vision/MinimapCamera";
 
 export interface Room extends Renderable, RenderableMinimap {
     // X and Y on the row grid, not absolute coordinates on the map
@@ -20,7 +21,7 @@ export interface Room extends Renderable, RenderableMinimap {
     equals(other: Room): boolean;
 
     render(): void;
-    renderMinimap(ctx: CanvasRenderingContext2D): void;
+    renderMinimap(minimapCamera: MinimapCamera) : void;
 
     addDoor(door: Door): void;
 }

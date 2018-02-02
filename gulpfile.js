@@ -14,7 +14,7 @@ var watchedBrowserify = watchify(browserify({
             // need to include all the files we'll want here i think....
             // not sure how that will work with bundle.js if there are multiple files...
             // do mutliple entries end up in the same bundle? or do they make multiple somehow?
-         entries: ['ts/test.ts'],
+         entries: ['ts/levelGeneratorTest.ts'],
         cache: {},
         packageCache: {}
 }).plugin(tsify));

@@ -2,6 +2,7 @@
 import { Orientation } from '../enums/Orientation';
 import { Renderable } from "./Renderable";
 import { RenderableMinimap } from "./RenderableMinimap";
+import { MinimapCamera } from "../vision/MinimapCamera";
 
 export interface Door extends Renderable, RenderableMinimap {
     // x & y pixel coordinates in the world.
@@ -25,5 +26,5 @@ export interface Door extends Renderable, RenderableMinimap {
     equals(other: Door) : boolean;
 
     render() : void;
-    renderMinimap(ctx: CanvasRenderingContext2D) : void;
+    renderMinimap(minimapCamera: MinimapCamera) : void;
 }

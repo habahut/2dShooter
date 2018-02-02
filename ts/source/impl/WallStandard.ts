@@ -4,6 +4,7 @@ import { Renderable } from "../interfaces/Renderable";
 import { Door } from "../interfaces/Door";
 import { WindowObj } from "../interfaces/WindowObj";
 import { RenderableMinimap } from "../interfaces/RenderableMinimap";
+import { MinimapCamera } from "../vision/MinimapCamera";
 
 export class WallStandard implements Wall, Renderable, RenderableMinimap {
 
@@ -17,6 +18,8 @@ export class WallStandard implements Wall, Renderable, RenderableMinimap {
     doors: Array<Door>;
     windows: Array<WindowObj>;
 
+    // this might need to take the roomX and roomY eventually, so I can
+    // do minimap revealing based on rooms visited.
     constructor(x1: number, y1: number, x2: number, y2: number, 
             thickness: number, orientation: Orientation) {
         this.x1 = x1;
@@ -28,13 +31,8 @@ export class WallStandard implements Wall, Renderable, RenderableMinimap {
     }
 
     render() { }
-    renderMinimap(ctx: CanvasRenderingContext2D) {
-        ctx.strokeStyle = "black";
-        ctx.beginPath();
-        ctx.moveTo(this.x1, this.y1);
-        ctx.lineTo(this.x2, this.y2);
-        ctx.stroke();
-        ctx.closePath();
+    renderMinimap(minimapCamera: MinimapCamera) {
+        minimapCamera.drawLine(this.x1, this.y1, this.x2, this.y2, "black");
     }
 
     getX1() {

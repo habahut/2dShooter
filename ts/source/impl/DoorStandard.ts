@@ -3,6 +3,7 @@ import { Door } from "../interfaces/Door";
 import { Renderable } from '../interfaces/Renderable';
 import { Orientation } from '../enums/Orientation';
 import { RenderableMinimap } from "../interfaces/RenderableMinimap";
+import { MinimapCamera } from "../vision/MinimapCamera";
 
 export class DoorStandard implements Door, Renderable, RenderableMinimap {
     x1: number;
@@ -37,27 +38,8 @@ export class DoorStandard implements Door, Renderable, RenderableMinimap {
     render() {
     }
 
-    renderMinimap(ctx: CanvasRenderingContext2D) {
-        ctx.strokeStyle = "red";
-        ctx.beginPath();
-        ctx.moveTo(this.x1, this.y1);
-        ctx.lineTo(this.x2, this.y2);
-        if (this.room1x == this.room2x) {
-            // rooms are vertically stacked
-            if (this.room1y < this.room2y) {
-                ctx.lineTo((this.x1 + this.x2) / 2, this.y1 - 15);
-            } else {
-                ctx.lineTo((this.x1 + this.x2) / 2, this.y1 + 15);
-            }
-        } else {
-            if (this.room1x < this.room2x) {
-                ctx.lineTo(this.x1 - 15, (this.y1 + this.y2) / 2);
-            } else {
-                ctx.lineTo(this.x1 + 15, (this.y1 + this.y2) / 2);
-            }
-        }
-        ctx.stroke();
-        ctx.closePath();
+    renderMinimap(minimapCamera: MinimapCamera) : void {
+        minimapCamera.drawLine(this.x1, this.y1, this.x2, this.y2, "red");
     }
 
     equals(other: Door) : boolean {

@@ -5,6 +5,7 @@ import { Door } from '../interfaces/Door';
 import { Wall } from '../interfaces/Wall';
 import { Point } from "../util/Point";
 import { XYMap } from "../util/XYMap";
+import { MinimapCamera } from "../vision/MinimapCamera";
 
 export class RoomStandard implements Room, Renderable, RenderableMinimap {
     roomTileSize: number;
@@ -23,14 +24,14 @@ export class RoomStandard implements Room, Renderable, RenderableMinimap {
     }
 
     render() { }
-    renderMinimap(ctx: CanvasRenderingContext2D) {
+    renderMinimap(minimapCamera: MinimapCamera) : void {
         for (let wall of this.walls) {
-            wall.renderMinimap(ctx);
+            wall.renderMinimap(minimapCamera);
         }
         // TODO: maybe we should handle the rendering of the door here so that we can 
         // ensure it points in the right direction?
         for (let door of this.doors) {
-            door.renderMinimap(ctx);
+            door.renderMinimap(minimapCamera);
             // this is kind of hacky. We want to confirm the door is owned by both rooms.
             // so give 
         }

@@ -1,3 +1,5 @@
+import { MinimapCamera } from "../vision/MinimapCamera";
+
 export interface RenderableMinimap {
-    renderMinimap(ctx: CanvasRenderingContext2D) : void;
+    renderMinimap(minimapCamera: MinimapCamera) : void;
 }

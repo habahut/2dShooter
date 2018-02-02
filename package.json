@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@types/chai": "^4.1.0",
+        "box-intersect": "^1.0.1",
         "chai": "^4.1.2",
         "jquery": "^3.2.1",
         "mocha": "^4.1.0",

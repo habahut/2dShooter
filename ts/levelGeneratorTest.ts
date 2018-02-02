@@ -10,6 +10,7 @@ import * as $ from "jquery";
 import { World } from "./source/impl/World";
 import { RoomScaledFactoryFactory } from "./source/factories/RoomScaledFactoryFactory";
 import { LevelGenerator } from "./source/levelGeneration/LevelGenerator";
+import { MinimapCamera } from "./source/vision/MinimapCamera";
 
 
 debugger;
@@ -34,14 +35,17 @@ let
     height: number = 20,
     width: number = 20,
     numSeeds: number = 13,
-    levelGenerator: LevelGenerator = new LevelGenerator(roomScaledFactoryFactory, numSeeds, height, width, mersenneTwister);
+    levelGenerator: LevelGenerator = new LevelGenerator(roomScaledFactoryFactory, numSeeds, height, width, mersenneTwister),
+
+    canvas: HTMLCanvasElement = <HTMLCanvasElement> $('#minimapCanvas')[0],
+    minimapSize = 300,
+    minimapCamera = new MinimapCamera(canvas, roomTileSize * width / 300);
 
 console.log("random: " , random);
 
 //let roomPath: RoomPath = blobPathGenerator.roomWalk(edge);
 
-let canvas: HTMLCanvasElement = <HTMLCanvasElement> $('#mainCanvas')[0],
-    ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D> canvas.getContext("2d");
+let ctx: CanvasRenderingContext2D = <CanvasRenderingContext2D> canvas.getContext("2d");
 
 // initialize canvas with white background and green grid
 ctx.fillStyle = "white";
@@ -86,7 +90,7 @@ ctx.lineWidth = 5;
 let world: World = levelGenerator.generateLevel();
 debugger;
 for (let room of world.rooms) {
-    room.renderMinimap(ctx);
+    room.renderMinimap(minimapCamera);
     let x = 5;
 }
 
